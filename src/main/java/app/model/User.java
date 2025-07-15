@@ -1,0 +1,41 @@
+package app.model;
+
+import app.util.UpdateNameExtractor;
+import com.google.type.DateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.time.LocalDate;
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Document(collection = "users")
+public class User {
+    @Id
+    private Long chatId;
+    private String userName;
+    private String fullName;
+    private Long referrerId;
+    private int level;
+    private int points;
+    private LocalDate firstSeen;
+    private LocalDate lastAction;
+
+    public User(Update update, Long chatId, Long referrerId) {
+        this.chatId = chatId;
+        this.userName = UpdateNameExtractor.extractUserName(update);
+        this.fullName = UpdateNameExtractor.extractFullName(update);
+        this.referrerId = referrerId;
+        this.level = 0;
+        this.points = 0;
+        this.firstSeen = LocalDate.now();
+        this.lastAction = LocalDate.now();
+    }
+}
