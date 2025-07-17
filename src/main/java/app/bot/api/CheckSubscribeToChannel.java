@@ -21,7 +21,7 @@ public class CheckSubscribeToChannel {
         this.partners = partners;
     }
 
-    public boolean hasNotSubscription(MessagingService msg, Long chatId, int msgId, boolean userExist) {
+    public boolean hasNotSubscription(MessagingService msg, Long chatId, int msgId, boolean subscribeChek) {
         List<Partner> partnersList = partners.findAll();
         Map<Partner, Boolean> results = new HashMap<>();
 
@@ -48,7 +48,7 @@ public class CheckSubscribeToChannel {
         }
 
         if (!results.containsValue(false)) {
-            if (userExist) {
+            if (subscribeChek) {
                 msg.processMessage(Messages.mainMenu(chatId, msgId));
             }
 

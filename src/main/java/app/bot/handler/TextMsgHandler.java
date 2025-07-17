@@ -45,7 +45,7 @@ public class TextMsgHandler {
         if (chatId.equals(appConfig.getLogChat())) return;
 
         boolean ue = userService.existsById(chatId);
-        if (subscribe.hasNotSubscription(msg, chatId, -1, ue)) return;
+        if (subscribe.hasNotSubscription(msg, chatId, -1, false)) return;
 
         if (text.equals("/start")) {
             if (!ue) {
