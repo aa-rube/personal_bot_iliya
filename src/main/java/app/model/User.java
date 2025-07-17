@@ -1,7 +1,6 @@
 package app.model;
 
 import app.util.UpdateNameExtractor;
-import com.google.type.DateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

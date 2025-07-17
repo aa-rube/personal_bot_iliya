@@ -18,6 +18,17 @@ public class ReferralService {
     public void updateRefUser(Long r, Long ref) {
         repo.save(new Referral(r, ref));
     }
+    // Обновленный метод в сервисе
+    public int updateRefUserWithCount(Long r, Long ref) {
+        // Сохраняем нового реферала
+        repo.save(new Referral(r, ref));
+
+        // Вычисляем timestamp для 24 часов назад
+        long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+
+        // Получаем количество рефералов за последние 24 часа
+        return repo.countByReferrerIdAndTimestampsGreaterThan(ref, twentyFourHoursAgo);
+    }
 
     public Map<String, String> getUsrLevel(Long chatId) {
         /* ---------- 1. личные приглашения ---------- */
@@ -45,7 +56,9 @@ public class ReferralService {
 
         /* ---------- 4. бейдж по количеству личных приглашений ---------- */
         String label;
-        if (lvl1Cnt <= 2) {
+        if (lvl1Cnt == 0) {
+            label = "Новичок \uD83D\uDC7D";
+        } else if (lvl1Cnt <= 2) {
             label = "Любознательный пользователь \uD83D\uDD30";
         } else if (lvl1Cnt <= 9) {
             label = "Поделился с друзьями \uD83D\uDC65";

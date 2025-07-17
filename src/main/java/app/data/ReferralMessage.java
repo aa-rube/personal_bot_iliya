@@ -1,6 +1,6 @@
 package app.data;
 
-import app.config.BotConfig;
+import app.config.AppConfig;
 import app.bot.telegramdata.TelegramData;
 import app.bot.api.MessagingService;
 import app.util.ReferralCodeCipher;
@@ -11,16 +11,16 @@ import org.springframework.stereotype.Service;
 public class ReferralMessage {
 
     private final MessagingService msgService;
-    private final BotConfig botConfig;
+    private final AppConfig appConfig;
 
     public ReferralMessage(@Lazy MessagingService msgService,
-                           BotConfig botConfig) {
+                           AppConfig appConfig) {
         this.msgService = msgService;
-        this.botConfig = botConfig;
+        this.appConfig = appConfig;
     }
 
     public void sendReferralMsg(Long chatId) {
-        String invite = "Поделись этой ссылкой с другом:\n\n" + botConfig.getUsername() + "?start="
+        String invite = "Поделись этой ссылкой с другом:\n\n" + appConfig.getUsername() + "?start="
                 + ReferralCodeCipher.encrypt(String.valueOf(chatId)) + "</code>";
 
         msgService.processMessage(TelegramData.getSendMessageHtmlParseMode(chatId, invite, null));

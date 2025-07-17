@@ -2,27 +2,32 @@ package app.bot.handler;
 
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
-import app.bot.telegramdata.TelegramData;
+import app.bot.data.Messages;
+import app.config.AppConfig;
 import app.service.ReferralService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Service
 public class CallBackDataHandler {
 
+    private final AppConfig appConfig;
     private final MessagingService msg;
     private final CheckSubscribeToChannel subscribe;
     private final ReferralService referralService;
 
-    public CallBackDataHandler(@Lazy MessagingService msg,
+    public CallBackDataHandler(AppConfig appConfig,
+                               @Lazy MessagingService msg,
                                CheckSubscribeToChannel subscribe,
                                ReferralService referralService
     ) {
+        this.appConfig = appConfig;
         this.msg = msg;
         this.subscribe = subscribe;
         this.referralService = referralService;
@@ -33,20 +38,22 @@ public class CallBackDataHandler {
         String data = update.getCallbackQuery().getData();
         int msgId = update.getCallbackQuery().getMessage().getMessageId();
 
-        if (!subscribe.hasSubscription(msg, chatId, msgId)) return;
+        if (subscribe.hasNotSubscription(msg, chatId, msgId)) return;
 
         if (data.equals("my_bolls")) {
             Map<String, String> m = referralService.getUsrLevel(chatId);
-            msg.processMessage(TelegramData.getSendMessage(
-                    chatId,
-                    String.format("%s\n\nБаллы:%s", m.get("l"), m.get("b")),
-                    TelegramData.createInlineKeyboardColumn(
-                            new String[]{"\uD83C\uDF81 Мои баллы", "\uD83D\uDC65 Пригласить друзей", "\uD83D\uDECD Потратить баллы"},
-                            new String[]{"my_bolls", "share", "spend_bolls"}))
-            );
-
+            msg.processMessage(Messages.myBolls(chatId, msgId, m));
         }
 
+        if (data.equals("share")) {
+            msg.processMessage(Messages.share(chatId, msgId));
+            msg.processMessage(Messages.requestAward(appConfig.getLogChat()));
+        }
+
+        if (data.equals("spend_bolls")) {
+            Map<String, String> m = new HashMap<>();//referralService.getUsrLevel(chatId);
+            msg.processMessage(Messages.spendBolls(chatId, msgId, m));
+        }
     }
 
 }

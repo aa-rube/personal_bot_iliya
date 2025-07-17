@@ -1,6 +1,6 @@
 package app.bot.polling;
 
-import app.config.BotConfig;
+import app.config.AppConfig;
 import app.bot.handler.CallBackDataHandler;
 import app.bot.handler.TextMsgHandler;
 import app.bot.telegramdata.TelegramData;
@@ -14,18 +14,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 public class UpdatePolling extends TelegramLongPollingBot {
 
-    private final BotConfig botConfig;
+    private final AppConfig appConfig;
     private final TextMsgHandler textMsgHandler;
     private final CallBackDataHandler callBackDataHandler;
 
     @Override
     public String getBotUsername() {
-        return botConfig.getUsername();
+        return appConfig.getUsername();
     }
 
     @Override
     public String getBotToken() {
-        return botConfig.getToken();
+        return appConfig.getToken();
     }
 
     @Override
