@@ -51,6 +51,7 @@ public class TextMsgHandler {
                 userService.saveUser(update, chatId, 0L);
                 msg.processMessage(Messages.uniqueLink(chatId));
             }
+            return;
         }
 
         if (text.contains("/start ")) {
@@ -67,6 +68,7 @@ public class TextMsgHandler {
                     msg.processMessage(Messages.newUser(appConfig.getLogChat()));
                 }
             }
+            return;
         }
 
         msg.processMessage(Messages.mainMenu(chatId, -1));
