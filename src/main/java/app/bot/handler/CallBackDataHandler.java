@@ -5,6 +5,7 @@ import app.bot.api.MessagingService;
 import app.bot.data.Messages;
 import app.config.AppConfig;
 import app.service.ReferralService;
+import app.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -17,20 +18,20 @@ import java.util.Map;
 @Service
 public class CallBackDataHandler {
 
-    private final AppConfig appConfig;
     private final MessagingService msg;
     private final CheckSubscribeToChannel subscribe;
     private final ReferralService referralService;
+    private final UserService userService;
 
-    public CallBackDataHandler(AppConfig appConfig,
-                               @Lazy MessagingService msg,
+    public CallBackDataHandler(@Lazy MessagingService msg,
                                CheckSubscribeToChannel subscribe,
-                               ReferralService referralService
+                               ReferralService referralService,
+                               UserService userService
     ) {
-        this.appConfig = appConfig;
         this.msg = msg;
         this.subscribe = subscribe;
         this.referralService = referralService;
+        this.userService = userService;
     }
 
     public void updateHandler(Update update) {
@@ -38,7 +39,8 @@ public class CallBackDataHandler {
         String data = update.getCallbackQuery().getData();
         int msgId = update.getCallbackQuery().getMessage().getMessageId();
 
-        if (subscribe.hasNotSubscription(msg, chatId, msgId)) return;
+        boolean ue = userService.existsById(chatId);
+        if (subscribe.hasNotSubscription(msg, chatId, msgId, ue)) return;
 
         switch (data) {
             case "my_bolls" -> {

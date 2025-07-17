@@ -44,10 +44,11 @@ public class TextMsgHandler {
         log.info("msgId: {}, chatId: {}, text: {}", msgId, chatId, text);
         if (chatId.equals(appConfig.getLogChat())) return;
 
-        if (subscribe.hasNotSubscription(msg, chatId, -1)) return;
+        boolean ue = userService.existsById(chatId);
+        if (subscribe.hasNotSubscription(msg, chatId, -1, ue)) return;
 
         if (text.equals("/start")) {
-            if (!userService.existsById(chatId)) {
+            if (!ue) {
                 userService.saveUser(update, chatId, 0L);
                 msg.processMessage(Messages.uniqueLink(chatId));
             }
@@ -56,9 +57,10 @@ public class TextMsgHandler {
 
         if (text.contains("/start ")) {
 
-            if (!userService.existsById(chatId)) {
+            if (!ue) {
                 Long ref = ExtractReferralIdFromStartCommand.extract(text);
                 int c = referralService.updateRefUserWithCount(chatId, ref);
+
                 userService.saveUser(update, chatId, ref);
                 msg.processMessage(Messages.uniqueLink(chatId));
 
