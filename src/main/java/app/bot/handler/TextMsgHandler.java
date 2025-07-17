@@ -49,7 +49,6 @@ public class TextMsgHandler {
         if (text.equals("/start")) {
             if (!userService.userDoesNotExists(chatId)) {
                 userService.saveUser(update, chatId, 0L);
-                msg.processMessage(Messages.uniqLink(chatId, msgId));
             }
         }
 
