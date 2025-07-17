@@ -16,7 +16,7 @@ public class UserService {
         userRepository.save(new User(update, chatId, ref));
     }
 
-    public boolean userDoesNotExists(Long chatId) {
-        return !userRepository.existsById(chatId);
+    public boolean existsById(Long chatId) {
+        return userRepository.existsById(chatId);
     }
 }

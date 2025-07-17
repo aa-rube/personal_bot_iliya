@@ -47,7 +47,7 @@ public class TextMsgHandler {
         if (subscribe.hasNotSubscription(msg, chatId, -1)) return;
 
         if (text.equals("/start")) {
-            if (!userService.userDoesNotExists(chatId)) {
+            if (!userService.existsById(chatId)) {
                 userService.saveUser(update, chatId, 0L);
                 msg.processMessage(Messages.uniqueLink(chatId));
             }
@@ -56,7 +56,7 @@ public class TextMsgHandler {
 
         if (text.contains("/start ")) {
 
-            if (userService.userDoesNotExists(chatId)) {
+            if (!userService.existsById(chatId)) {
                 Long ref = ExtractReferralIdFromStartCommand.extract(text);
                 int c = referralService.updateRefUserWithCount(chatId, ref);
                 userService.saveUser(update, chatId, ref);
