@@ -48,7 +48,7 @@ public class CheckSubscribeToChannel {
         }
 
         if (!results.containsValue(false)) {
-            msg.processMessage(Messages.uniqueLink(chatId, msgId));
+            msg.processMessage(Messages.mainMenu(chatId, msgId));
             return false;
         } else {
             msg.processMessage(Messages.subscribeMsg(chatId, msgId, results));

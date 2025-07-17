@@ -58,8 +58,8 @@ public class Messages {
         return TelegramData.getSendMessage(chatId, s, null);
     }
 
-    public static Object uniqueLink(Long chatId, int msgId) {
+    public static Object uniqueLink(Long chatId) {
         String s = "Ваша уникальная ссылка на закрытый чат <a href=\"https://t.me/+R_7xy_8KZ244Y2Qx\">тут</a>\n";
-        return TelegramData.getEditMessage(chatId, s, Keyboards.mainKb(), msgId);
+        return TelegramData.getSendMessage(chatId, s, Keyboards.mainKb());
     }
 }

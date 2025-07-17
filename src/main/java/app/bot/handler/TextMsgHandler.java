@@ -49,14 +49,17 @@ public class TextMsgHandler {
         if (text.equals("/start")) {
             if (!userService.userDoesNotExists(chatId)) {
                 userService.saveUser(update, chatId, 0L);
+                msg.processMessage(Messages.uniqueLink(chatId));
             }
         }
 
         if (text.contains("/start ")) {
+
             if (userService.userDoesNotExists(chatId)) {
                 Long ref = ExtractReferralIdFromStartCommand.extract(text);
                 int c = referralService.updateRefUserWithCount(chatId, ref);
                 userService.saveUser(update, chatId, ref);
+                msg.processMessage(Messages.uniqueLink(chatId));
 
                 if (c > 100) {
                     msg.processMessage(Messages.overInviteLimit(appConfig.getLogChat()));
@@ -68,5 +71,4 @@ public class TextMsgHandler {
 
         msg.processMessage(Messages.mainMenu(chatId, -1));
     }
-
 }

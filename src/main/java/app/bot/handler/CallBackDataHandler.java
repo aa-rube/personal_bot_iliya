@@ -40,20 +40,24 @@ public class CallBackDataHandler {
 
         if (subscribe.hasNotSubscription(msg, chatId, msgId)) return;
 
-        if (data.equals("my_bolls")) {
-            Map<String, String> m = referralService.getUsrLevel(chatId);
-            msg.processMessage(Messages.myBolls(chatId, msgId, m));
+        switch (data) {
+            case "my_bolls" -> {
+                Map<String, String> m = referralService.getUsrLevel(chatId);
+                msg.processMessage(Messages.myBolls(chatId, msgId, m));
+                return;
+            }
+            case "share" -> {
+                msg.processMessage(Messages.share(chatId, msgId));
+                return;
+            }
+            case "spend_bolls" -> {
+                Map<String, String> m = new HashMap<>();//referralService.getUsrLevel(chatId);
+
+                msg.processMessage(Messages.spendBolls(chatId, msgId, m));
+                return;
+            }
         }
 
-        if (data.equals("share")) {
-            msg.processMessage(Messages.share(chatId, msgId));
-            msg.processMessage(Messages.requestAward(appConfig.getLogChat()));
-        }
-
-        if (data.equals("spend_bolls")) {
-            Map<String, String> m = new HashMap<>();//referralService.getUsrLevel(chatId);
-            msg.processMessage(Messages.spendBolls(chatId, msgId, m));
-        }
     }
 
 }
