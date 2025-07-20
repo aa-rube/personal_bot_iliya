@@ -7,10 +7,13 @@ import app.bot.api.CheckSubscribeToChannel;
 import app.service.ReferralService;
 import app.service.UserService;
 import app.util.ExtractReferralIdFromStartCommand;
+import lombok.Lombok;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -27,7 +30,6 @@ public class TextMsgHandler {
                           UserService userService,
                           ReferralService referralService,
                           @Lazy MessagingService msg
-
     ) {
         this.appConfig = appConfig;
         this.subscribe = subscribe;
@@ -45,7 +47,7 @@ public class TextMsgHandler {
         if (chatId.equals(appConfig.getLogChat())) return;
 
         boolean ue = userService.existsById(chatId);
-        if (subscribe.hasNotSubscription(msg, chatId, -1, false)) return;
+        if (subscribe.hasNotSubscription(msg,update, chatId, -1, false)) return;
 
         if (text.equals("/start")) {
             if (!ue) {
@@ -65,11 +67,19 @@ public class TextMsgHandler {
                 msg.processMessage(Messages.uniqueLink(chatId));
 
                 if (c > 100) {
-                    msg.processMessage(Messages.overInviteLimit(appConfig.getLogChat()));
+                    msg.processMessage(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));
+                    msg.processMessage(Messages.overInviteLimitForUser(ref));
                 } else {
                     msg.processMessage(Messages.newUser(appConfig.getLogChat()));
+
+                    Map<String, String> m = referralService.getUsrLevel(chatId);
+                    long count = Long.parseLong(m.getOrDefault("b", "0"));
+                    if (count != 0 && count % 10 == 0) {
+                        msg.processMessage(Messages.cheers(ref, m));
+                    }
                 }
             }
+
             return;
         }
 

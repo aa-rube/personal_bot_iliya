@@ -35,4 +35,11 @@ public class Keyboards {
                 new String[]{"my_bolls", "share", "spend_bolls"}
         );
     }
+
+    public static InlineKeyboardMarkup award() {
+        return TelegramData.createInlineKeyboardLine(
+                new String[]{"\uD83C\uDF81 Забрать награду"},
+                new String[]{"award"}
+        );
+    }
 }

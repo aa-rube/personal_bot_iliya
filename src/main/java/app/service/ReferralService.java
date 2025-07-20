@@ -18,21 +18,21 @@ public class ReferralService {
     public void updateRefUser(Long r, Long ref) {
         repo.save(new Referral(r, ref));
     }
+
     // Обновленный метод в сервисе
     public int updateRefUserWithCount(Long r, Long ref) {
         // Сохраняем нового реферала
-        repo.save(new Referral(r, ref));
-
+        updateRefUser(r, ref);
         // Вычисляем timestamp для 24 часов назад
         long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
-
         // Получаем количество рефералов за последние 24 часа
         return repo.countByReferrerIdAndTimestampsGreaterThan(ref, twentyFourHoursAgo);
     }
 
     public Map<String, String> getUsrLevel(Long chatId) {
         /* ---------- 1. личные приглашения ---------- */
-        List<Referral> lvl1 = repo.findByReferrerId(chatId);
+        List<Referral> lvl1 =
+                repo.findByReferrerId(chatId);
         long lvl1Cnt = lvl1.size();
 
         /* ---------- 2. баллы за 1-й уровень ---------- */
@@ -47,18 +47,16 @@ public class ReferralService {
 
         /* ---------- 3. 2-й уровень (3 балла за каждого) ---------- */
         List<Long> lvl1Ids = lvl1.stream()
-                                 .map(Referral::getUserId)
-                                 .collect(Collectors.toList());
+                .map(Referral::getUserId)
+                .collect(Collectors.toList());
         long lvl2Cnt = lvl1Ids.isEmpty() ? 0 : repo.findByReferrerIdIn(lvl1Ids).size();
         long lvl2Pts = lvl2Cnt * 3;
 
         long totalPts = lvl1Pts + lvl2Pts;
 
         /* ---------- 4. бейдж по количеству личных приглашений ---------- */
-        String label;
-        if (lvl1Cnt == 0) {
-            label = "Новичок \uD83D\uDC7D";
-        } else if (lvl1Cnt <= 2) {
+        String label = "Новичок \uD83D\uDC7D";
+        if (lvl1Cnt <= 2) {
             label = "Любознательный пользователь \uD83D\uDD30";
         } else if (lvl1Cnt <= 9) {
             label = "Поделился с друзьями \uD83D\uDC65";
@@ -66,14 +64,16 @@ public class ReferralService {
             label = "Вдохновитель окружения \uD83D\uDE80";
         } else if (lvl1Cnt <= 49) {
             label = "Просветитель \uD83C\uDF1F";
-        } else {
+        } else if (lvl1Cnt > 50) {
             label = "Амбассадор нейросетей \uD83D\uDC51";
         }
 
         /* ---------- 5. ответ ---------- */
         return Map.of(
-                "l", label,               // Label
-                "b", String.valueOf(totalPts) // Balls
+                "l", label,                // Label
+                "b", String.valueOf(totalPts), // Balls
+                "l1", String.valueOf(lvl1Cnt),
+                "l2", String.valueOf(lvl2Cnt)
         );
     }
 }

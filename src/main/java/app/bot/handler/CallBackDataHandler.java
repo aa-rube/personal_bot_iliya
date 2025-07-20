@@ -3,6 +3,7 @@ package app.bot.handler;
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
 import app.bot.data.Messages;
+import app.config.AppConfig;
 import app.service.ReferralService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -16,14 +17,17 @@ import java.util.Map;
 @Service
 public class CallBackDataHandler {
 
+    private final AppConfig appConfig;
     private final MessagingService msg;
     private final CheckSubscribeToChannel subscribe;
     private final ReferralService referralService;
 
     public CallBackDataHandler(@Lazy MessagingService msg,
+                               AppConfig appConfig,
                                CheckSubscribeToChannel subscribe,
                                ReferralService referralService
     ) {
+        this.appConfig = appConfig;
         this.msg = msg;
         this.subscribe = subscribe;
         this.referralService = referralService;
@@ -37,12 +41,12 @@ public class CallBackDataHandler {
         log.info("msgId: {}, chatId: {}, data: {}", msgId, chatId, data);
 
         if (!data.equals("subscribe_chek")) {
-            if (subscribe.hasNotSubscription(msg, chatId, msgId, false)) return;
+            if (subscribe.hasNotSubscription(msg, update, chatId, msgId, false)) return;
         }
 
         switch (data) {
             case "subscribe_chek" -> {
-                if (subscribe.hasNotSubscription(msg, chatId, msgId, true)) return;
+                if (subscribe.hasNotSubscription(msg, update, chatId, msgId, true)) return;
             }
             case "my_bolls" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
@@ -54,6 +58,10 @@ public class CallBackDataHandler {
             case "spend_bolls" -> {
                 Map<String, String> m = new HashMap<>();//referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.spendBolls(chatId, msgId, m));
+            }
+            case "award" -> {
+                msg.processMessage(Messages.requestAward(chatId, msgId));
+                msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
             }
         }
     }

@@ -47,37 +47,38 @@ public class UpdateNameExtractor {
     }
 
     /**
-     * Извлекает «полное имя» (FirstName + LastName) из Update,
-     * складывая их через запятую, если оба присутствуют.
-     *
-     * @param update объект Telegram Update
-     * @return строка вида "Имя", "Имя, Фамилия" или пустая, если данных нет
+     * Возвращает "Имя" или "Имя, Фамилия" для любого Update:
+     *  ‑ текстовое сообщение
+     *  ‑ callback‑кнопка
+     *  ‑ (опц.) inline‑query, edited‑message и др.
      */
     public static String extractFullName(Update update) {
-        try {
-            if (update == null || update.getMessage() == null || update.getMessage().getFrom() == null) {
-                return "";
-            }
-
-            User user = update.getMessage().getFrom();
-            String firstName = (user.getFirstName() != null) ? user.getFirstName().trim() : "";
-            String lastName = (user.getLastName() != null) ? user.getLastName().trim() : "";
-
-            StringBuilder sb = new StringBuilder();
-            if (!firstName.isEmpty()) {
-                sb.append(firstName);
-            }
-            if (!lastName.isEmpty()) {
-                // Если и имя, и фамилия не пустые, разделяем запятой и пробелом
-                if (!firstName.isEmpty()) {
-                    sb.append(", ");
-                }
-                sb.append(lastName);
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            logger.warn("extractFullName: Не удалось извлечь полное имя", e);
+        if (update == null) {
             return "";
         }
+
+        // 1. Определяем отправителя
+        User user = null;
+        if (update.hasMessage() && update.getMessage().getFrom() != null) {
+            user = update.getMessage().getFrom();
+        } else if (update.hasCallbackQuery() && update.getCallbackQuery().getFrom() != null) {
+            user = update.getCallbackQuery().getFrom();
+        } else if (update.hasInlineQuery() && update.getInlineQuery().getFrom() != null) { // опционально
+            user = update.getInlineQuery().getFrom();
+        }
+
+        if (user == null) {
+            return "";
+        }
+
+        // 2. Склеиваем имя
+        String first = user.getFirstName() != null ? user.getFirstName().trim() : "";
+        String last  = user.getLastName()  != null ? user.getLastName().trim()  : "";
+
+        if (first.isEmpty() && last.isEmpty()) {
+            return "";
+        }
+        return last.isEmpty() ? first : first + ", " + last;
     }
+
 }

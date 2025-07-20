@@ -6,6 +6,7 @@ import app.repository.PartnersRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ public class CheckSubscribeToChannel {
         this.partners = partners;
     }
 
-    public boolean hasNotSubscription(MessagingService msg, Long chatId, int msgId, boolean subscribeChek) {
+    public boolean hasNotSubscription(MessagingService msg, Update update, Long chatId, int msgId, boolean subscribeChek) {
         List<Partner> partnersList = partners.findAll();
         Map<Partner, Boolean> results = new HashMap<>();
 
@@ -54,7 +55,7 @@ public class CheckSubscribeToChannel {
 
             return false;
         } else {
-            msg.processMessage(Messages.subscribeMsg(chatId, msgId, results));
+            msg.processMessage(Messages.subscribeMsg(update, chatId, msgId, results));
             return true;
         }
     }
