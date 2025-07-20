@@ -64,7 +64,7 @@ public class Messages {
                 Каталог призов будет расширяться. Копите баллы, чтобы первыми получать новые возможности!""";
 
         long b = Long.parseLong(m.getOrDefault("b", "0"));
-        return TelegramData.getEditMessage(chatId, s,b >= 100 ? Keyboards.mainKb() : Keyboards.award(), msgId);
+        return TelegramData.getEditMessage(chatId, s, b >= 100 ? Keyboards.award() : Keyboards.mainKb(), msgId);
     }
 
     public static Object newUser(Long chatId) {

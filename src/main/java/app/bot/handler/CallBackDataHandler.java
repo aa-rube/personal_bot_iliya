@@ -56,7 +56,7 @@ public class CallBackDataHandler {
                 msg.processMessage(Messages.share(chatId, msgId));
             }
             case "spend_bolls" -> {
-                Map<String, String> m = new HashMap<>();//referralService.getUsrLevel(chatId);
+                Map<String, String> m = new HashMap<>();
                 msg.processMessage(Messages.spendBolls(chatId, msgId, m));
             }
             case "award" -> {

@@ -53,6 +53,8 @@ public class TextMsgHandler {
             if (!ue) {
                 userService.saveUser(update, chatId, 0L);
                 msg.processMessage(Messages.uniqueLink(chatId));
+            } else {
+                msg.processMessage(Messages.mainMenu(chatId, msgId));
             }
             return;
         }
