@@ -54,7 +54,7 @@ public class TextMsgHandler {
                 userService.saveUser(update, chatId, 0L);
                 msg.processMessage(Messages.uniqueLink(chatId));
             } else {
-                msg.processMessage(Messages.mainMenu(chatId, msgId));
+                msg.processMessage(Messages.mainMenu(chatId, -1));
             }
             return;
         }
