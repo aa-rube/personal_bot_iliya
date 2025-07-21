@@ -23,28 +23,8 @@ public class TelegramData {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId);
         msg.setText(text);
-        msg.enableMarkdown(true);
-        msg.setParseMode(ParseMode.MARKDOWN);
-        msg.setReplyMarkup(markup);
-        return msg;
-    }
-
-    public static Object getSendMessageHtmlParseMode(Long chatId, String text, InlineKeyboardMarkup markup) {
-        SendMessage msg = new SendMessage();
-        msg.setChatId(chatId);
-        msg.setText(text);
         msg.enableHtml(true);
         msg.setParseMode(ParseMode.HTML);
-        msg.setReplyMarkup(markup);
-        return msg;
-    }
-
-    public static Object getSendMessage(Long chatId, String chunk, ReplyKeyboard markup) {
-        SendMessage msg = new SendMessage();
-        msg.setChatId(chatId);
-        msg.setText(chunk);
-        msg.enableMarkdown(true);
-        msg.setParseMode(ParseMode.MARKDOWN);
         msg.setReplyMarkup(markup);
         return msg;
     }
@@ -102,8 +82,8 @@ public class TelegramData {
         msg.setChatId(chatId);
         msg.setMessageId(msgId);
         msg.setText(text);
-        msg.enableMarkdown(true);
-        msg.setParseMode(ParseMode.MARKDOWN);
+        msg.enableHtml(true);
+        msg.setParseMode(ParseMode.HTML);
         msg.setReplyMarkup(markup);
         return msg;
     }
