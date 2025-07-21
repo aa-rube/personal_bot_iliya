@@ -23,7 +23,7 @@ public class ReferralMessage {
         String invite = "Поделись этой ссылкой с другом:\n\n" + appConfig.getUsername() + "?start="
                 + ReferralCodeCipher.encrypt(String.valueOf(chatId)) + "</code>";
 
-        msgService.processMessage(TelegramData.getSendMessageHtmlParseMode(chatId, invite, null));
+        msgService.processMessage(TelegramData.getSendMessage(chatId, invite, null));
     }
 
     public void startMessage(Long chatId, boolean hasSubscribe) {

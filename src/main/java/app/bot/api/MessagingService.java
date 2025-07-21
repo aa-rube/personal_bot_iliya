@@ -100,31 +100,6 @@ public class MessagingService {
 
 
 
-    public void executeLongMsg(SendMessage msg) {
-        int chunkSize = 4096;
-        String text = msg.getText();
-
-        while (text.length() > chunkSize) {
-            int splitIndex = findSplitIndex(text, chunkSize);
-            String chunk = text.substring(0, splitIndex);
-
-            try {
-                updatePolling.executeAsync((SendMessage) TelegramData.getSendMessage(Long.valueOf(msg.getChatId()), chunk, msg.getReplyMarkup()));
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-
-            text = text.substring(splitIndex);
-        }
-
-        if (!text.isEmpty()) {
-            try {
-                updatePolling.executeAsync(msg);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 
     private static int findSplitIndex(String text, int chunkSize) {
 
