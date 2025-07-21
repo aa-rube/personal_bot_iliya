@@ -14,7 +14,8 @@ public class Messages {
         if (msgId == -1) {
             String name = UpdateNameExtractor.extractFullName(update);
             String text = """
-                    Привет, {name}! Чтобы попасть в закрытый чат <b>«С GPT-на-Ты: Клуб Доверия к Нейросетям»</b>,
+                    Привет, {name}!
+                    Чтобы попасть в закрытый чат <b>«С GPT-на-Ты: Клуб Доверия к Нейросетям»</b>,
                     с пошаговыми инструкциями по установке ChatGPT, сначала подпишитесь на мой канал 
                     {link}. После подписки нажмите «Проверить подписку» и доступ откроется автоматически.
                     """
@@ -31,16 +32,15 @@ public class Messages {
 
     public static Object mainMenu(Long chatId, int msgId) {
         String text = "Главное меню";
-        return msgId < 0
-                ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
                 : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
     }
 
     public static Object myBolls(Long chatId, int msgId, Map<String, String> userData) {
         String text = """
+                {l}
+                
                 Баланс: <b>{b}</b> баллов.
-
-                Уровень: {l}
                 Приглашённых напрямую: {l1}
                 Приглашённых 2-го уровня: {l2}
                 """
