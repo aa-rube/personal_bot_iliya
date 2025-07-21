@@ -52,7 +52,6 @@ public class TextMsgHandler {
         if (text.equals("/start")) {
             if (!ue) {
                 userService.saveUser(update, chatId, 0L);
-                msg.processMessage(Messages.uniqueLink(chatId));
             } else {
                 msg.processMessage(Messages.mainMenu(chatId, -1));
             }
@@ -66,7 +65,6 @@ public class TextMsgHandler {
                 int c = referralService.updateRefUserWithCount(chatId, ref);
 
                 userService.saveUser(update, chatId, ref);
-                msg.processMessage(Messages.uniqueLink(chatId));
 
                 if (c > 100) {
                     msg.processMessage(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));

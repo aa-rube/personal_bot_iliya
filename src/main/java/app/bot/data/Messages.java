@@ -105,14 +105,15 @@ public class Messages {
         return TelegramData.getEditMessage(chatId, text, null, msgId);
     }
 
-    public static Object uniqueLink(Long chatId) {
+    public static Object uniqueLink(Long chatId, int msgId) {
         String text = """
                 Отлично! 🎉 Вот ваш пропуск в {link}
                 Внутри ждут подробные инструкции и поддержка сообщества.
                 Если возникнут вопросы — задавайте их в группе «Общий чат».
                 """
                 .replace("{link}", LinkWrapper.wrapTextInLink("закрытый клуб", "https://t.me/+R_7xy_8KZ244Y2Qx"));
-        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKb());
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
     }
 
     public static Object adminNotificationAward(Long chatId, Long userId, int msgId) {
