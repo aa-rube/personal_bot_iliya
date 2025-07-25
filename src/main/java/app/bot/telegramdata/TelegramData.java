@@ -29,6 +29,16 @@ public class TelegramData {
         return msg;
     }
 
+    public static Object getSendMessage(Long chatId, String text, ReplyKeyboard markup) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId);
+        msg.setText(text);
+        msg.enableHtml(true);
+        msg.setParseMode(ParseMode.HTML);
+        msg.setReplyMarkup(markup);
+        return msg;
+    }
+
     public static Object getSendPhoto(Long chatId, String text, InlineKeyboardMarkup markup, String fileId) {
         SendPhoto msg = new SendPhoto();
         msg.setChatId(chatId);

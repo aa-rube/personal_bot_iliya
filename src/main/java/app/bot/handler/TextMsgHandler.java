@@ -2,8 +2,10 @@ package app.bot.handler;
 
 import app.bot.api.MessagingService;
 import app.bot.data.Messages;
+import app.bot.telegramdata.TelegramData;
 import app.config.AppConfig;
 import app.bot.api.CheckSubscribeToChannel;
+import app.service.ActivationService;
 import app.service.ReferralService;
 import app.service.UserService;
 import app.util.ExtractReferralIdFromStartCommand;
@@ -11,6 +13,8 @@ import lombok.Lombok;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
@@ -20,22 +24,25 @@ import java.util.Map;
 public class TextMsgHandler {
 
     private final AppConfig appConfig;
-    private final CheckSubscribeToChannel subscribe;
+    private final MessagingService msg;
     private final UserService userService;
     private final ReferralService referralService;
-    private final MessagingService msg;
+    private final CheckSubscribeToChannel subscribe;
+    private final ActivationService activationService;
 
     public TextMsgHandler(AppConfig appConfig,
                           CheckSubscribeToChannel subscribe,
                           UserService userService,
                           ReferralService referralService,
+                          ActivationService activationService,
                           @Lazy MessagingService msg
     ) {
+        this.msg = msg;
         this.appConfig = appConfig;
         this.subscribe = subscribe;
         this.userService = userService;
         this.referralService = referralService;
-        this.msg = msg;
+        this.activationService = activationService;
     }
 
     public void updateHandler(Update update) {
@@ -82,6 +89,14 @@ public class TextMsgHandler {
 
             return;
         }
+
+        if (update.hasMessage() && update.getMessage().hasContact()) {
+            msg.processMessage(Messages.adminMsgHelp(update, appConfig.getLogChat()));
+            msg.processMessage(new ForwardMessage(String.valueOf(appConfig.getLogChat()), String.valueOf(chatId), msgId));
+            activationService.deleteByUserId(chatId);
+            return;
+        }
+
 
         msg.processMessage(Messages.mainMenu(chatId, -1));
     }

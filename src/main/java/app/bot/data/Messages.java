@@ -65,7 +65,8 @@ public class Messages {
                 Баллы сохраняются, а призовой каталог будет расширяться. Делитесь ссылкой и собирайте их заранее! 🔗
                 {link}
                 """.replace("{link}", link);
-        return TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
     }
 
     public static Object spendBolls(Long chatId, int msgId, Map<String, String> m) {
@@ -131,5 +132,28 @@ public class Messages {
                 Продолжайте делиться — следующий ранг уже близко.
                 """.replace("{level_name}", m.getOrDefault("l", ""));
         return TelegramData.getSendMessage(ref, text, null);
+    }
+
+    public static Object areYouOk(Long userId) {
+        String s = "Получилось ли установить ChatGPT по нашим инструкциям?\n\nВыберите вариант:";
+        return TelegramData.getSendMessage(userId, s, Keyboards.areYouOk());
+    }
+
+    public static Object yes(Long chatId, int msgId) {
+        String s = "Спасибо за ваш ответ. Рады были помочь!";
+        return TelegramData.getEditMessage(chatId, s, null, msgId);
+    }
+
+    public static Object userMsgHelp(Long chatId) {
+        String s = "Можем связаться с вами в самое ближайшее время! Поделитесь Вашим контактом, пожалуйста!";
+        activationService.deleteByUserId(chatId);
+        return TelegramData.getSendMessage(chatId, s, Keyboards.contactShare());
+    }
+
+    public static Object adminMsgHelp(Update update, Long logChat) {
+        String s = "Пользователь {uid} запросил помощи"
+                .replace("{uid}", UpdateNameExtractor.extractFullName(update) + ", " + UpdateNameExtractor.extractUserName(update))
+                .replace("{cid}", String.valueOf(logChat));
+        return TelegramData.getSendMessage(logChat, s, null);
     }
 }
