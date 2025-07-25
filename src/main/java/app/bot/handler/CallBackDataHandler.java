@@ -64,6 +64,7 @@ public class CallBackDataHandler {
             }
             case "share" -> {
                 msg.processMessage(Messages.share(chatId, msgId));
+                activationService.save(new Activation(chatId, System.currentTimeMillis(), 1));
                 return;
             }
             case "spend_bolls" -> {
