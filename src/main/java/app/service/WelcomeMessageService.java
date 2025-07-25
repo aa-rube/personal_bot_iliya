@@ -2,7 +2,6 @@ package app.service;
 
 import app.bot.api.MessagingService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class WelcomeMessageService {
 
@@ -55,12 +53,8 @@ public class WelcomeMessageService {
                 redisTemplate.opsForZSet().remove(QUEUE_ZSET, obj);
                 continue;
             }
+            msg.processMessage(new DeleteMessage(String.valueOf(k.groupId), k.msgId));
 
-            try {
-                msg.processMessage(new DeleteMessage(String.valueOf(k.groupId), k.msgId));
-            } catch (Exception e) {
-                 log.warn("Can't delete welcome message {}", key, e);
-            }
             // Убираем из очереди
             redisTemplate.opsForZSet().remove(QUEUE_ZSET, obj);
             //ключ сам умрёт через TTL, но можно подчистить "руками" если нужно:

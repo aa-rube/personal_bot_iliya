@@ -11,7 +11,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class UpdatePolling extends TelegramLongPollingBot {
@@ -32,8 +31,6 @@ public class UpdatePolling extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        log.info("We have an update: {}", update);
-
         if (update.hasCallbackQuery()) {
             callBackData(update);
         }
