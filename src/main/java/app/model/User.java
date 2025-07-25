@@ -30,7 +30,7 @@ public class User {
     private boolean isActive;
     private long lastSubscribeChecked;
 
-    private boolean kickUserFromChat;
+    private boolean isKickUserFromChat;
 
     public User(Update update, Long chatId, Long referrerId) {
         this.chatId = chatId;

@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,6 +23,8 @@ public class UserService {
     private final PartnersRepository partners;
     private final UserRepository userRepository;
     private final CheckSubscribeToChannel checkSubscribeToChannel;
+
+    private List<Partner> partnerList = new ArrayList<>();
 
     public UserService(PartnersRepository partners,
                        @Lazy MessagingService msg,
@@ -43,11 +46,10 @@ public class UserService {
 
     @Scheduled(fixedDelay = 600000) // 10 минут в миллисекундах
     public void subscribeChecking() {
+        this.partnerList = this.partnerList.isEmpty() ? partners.findAll() : this.partnerList;
 
         long timeAgo = System.currentTimeMillis() - (3 * 60 * 60 * 1000);
-        List<User> users = userRepository.findAllByKickUserFromChatAndActiveAndLastSubscribeCheckedLessThan(false,true, timeAgo);
-        List<Partner> partnerList = partners.findAll();
-
+        List<User> users = findUsers(timeAgo);
         users.forEach(user -> {
             boolean isActive = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
             if (!isActive) msg.processMessage(Messages.leftUser(user.getChatId()));
@@ -58,9 +60,10 @@ public class UserService {
             Sleep.sleepSafely(3000);
         });
 
-        timeAgo = System.currentTimeMillis() - (48 * 60 * 60 * 1000);
-        users = userRepository.findAllByKickUserFromChatAndActiveAndLastSubscribeCheckedLessThan(false, true, timeAgo);
 
+
+        timeAgo = System.currentTimeMillis() - (48 * 60 * 60 * 1000);
+        users = findUsers(timeAgo);
         users.forEach(user -> {
             boolean isActive = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
             if (!isActive) msg.processMessage(Messages.kickUserFromChat(user.getChatId(), -1002317608626L));
@@ -70,5 +73,9 @@ public class UserService {
             userRepository.save(user);
             Sleep.sleepSafely(3000);
         });
+    }
+
+    private List<User> findUsers(long time) {
+        return userRepository.findAllByIsKickUserFromChatAndIsActiveAndLastSubscribeCheckedLessThan(false, true, time);
     }
 }
