@@ -2,6 +2,7 @@ package app.service;
 
 import app.bot.api.MessagingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-@RequiredArgsConstructor
 public class WelcomeMessageService {
 
     private static final String KEY_TEMPLATE = "welcome:groupid:%d:msgid:%d";          // value: msgId
@@ -23,11 +23,20 @@ public class WelcomeMessageService {
     private static final Duration TTL   = Duration.ofMinutes(10);
     private static final Duration DELAY = Duration.ofMinutes(5);
     private static final long POLL_PERIOD_MS = 10_000; // как часто опрашиваем очередь
-
     private static final Pattern KEY_PATTERN = Pattern.compile("^welcome:groupid:(\\d+):msgid:(\\d+)$");
+
     private final RedisTemplate<String, Object> redisTemplate;
     private final TaskScheduler taskScheduler;
     private final MessagingService msg;
+
+    public WelcomeMessageService(@Lazy MessagingService msg,
+                                 TaskScheduler taskScheduler,
+                                 RedisTemplate<String, Object> redisTemplate
+    ) {
+        this.msg = msg;
+        this.redisTemplate = redisTemplate;
+        this.taskScheduler = taskScheduler;
+    }
 
     public void saveAndSchedule(Long groupId, Integer msgId) {
         String key = String.format(KEY_TEMPLATE, groupId, msgId);
