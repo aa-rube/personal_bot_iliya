@@ -48,12 +48,11 @@ public class CallBackDataHandler {
 
         if (!data.equals("subscribe_chek")) {
             if (subscribe.hasNotSubscription(msg, update, chatId, msgId, false)) return;
-
         }
 
         switch (data) {
             case "subscribe_chek" -> {
-                if (subscribe.hasNotSubscription(msg, update, chatId, msgId, true)) {
+                if (!subscribe.hasNotSubscription(msg, update, chatId, msgId, true)) {
                     activationService.save(new Activation(chatId, System.currentTimeMillis(), 0));
                     return;
                 }

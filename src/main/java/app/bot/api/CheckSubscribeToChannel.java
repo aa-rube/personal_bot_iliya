@@ -49,6 +49,7 @@ public class CheckSubscribeToChannel {
         }
 
         if (!results.containsValue(false)) {
+
             if (subscribeChek) {
                 msg.processMessage(Messages.uniqueLink(chatId, msgId));
             }
