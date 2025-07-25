@@ -2,10 +2,7 @@ package app.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
 
 public class UpdateNameExtractor {
 
@@ -35,15 +32,19 @@ public class UpdateNameExtractor {
             }
 
             // Извлекаем username с проверкой на пустоту
-            String username = user.getUserName();
-            return (username != null && !username.trim().isEmpty())
-                    ? "@" + username
-                    : DEFAULT_USERNAME;
+            return userExtractName(user);
 
         } catch (Exception e) {
             logger.error("Error extracting username: ", e);
             return DEFAULT_USERNAME;
         }
+    }
+
+    public static String userExtractName(User user) {
+        String username = user.getUserName();
+        return (username != null && !username.trim().isEmpty())
+                ? "@" + username
+                : DEFAULT_USERNAME;
     }
 
     /**
@@ -79,6 +80,17 @@ public class UpdateNameExtractor {
             return "";
         }
         return last.isEmpty() ? first : first + ", " + last;
+    }
+
+    public static String extractGroupTitleName(Update update) {
+        if (update == null
+                || update.getMessage() == null
+                || update.getMessage().getChat() == null) return "";
+
+        Chat chat = update.getMessage().getChat();
+        String title = chat.getTitle();
+        if (title == null || title.isEmpty()) return "";
+        return title;
     }
 
 }

@@ -42,6 +42,9 @@ public class UpdatePolling extends TelegramLongPollingBot {
             new Thread(() -> textMsgHandler.updateHandler(update)).start();
         }
 
+        if (update.hasMessage() && update.getMessage().getNewChatMembers() != null) {
+            textMsgHandler.newMembers(update, update.getMessage().getNewChatMembers());
+        }
     }
 
     private void callBackData(Update update) {

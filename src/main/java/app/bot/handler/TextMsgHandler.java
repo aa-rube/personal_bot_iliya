@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -45,6 +47,7 @@ public class TextMsgHandler {
         this.activationService = activationService;
     }
 
+
     public void updateHandler(Update update) {
         String text = update.getMessage().getText();
         Long chatId = update.getMessage().getChatId();
@@ -54,7 +57,7 @@ public class TextMsgHandler {
         if (chatId.equals(appConfig.getLogChat())) return;
 
         boolean ue = userService.existsById(chatId);
-        if (subscribe.hasNotSubscription(msg,update, chatId, -1, false)) return;
+        if (subscribe.hasNotSubscription(msg, update, chatId, -1, false)) return;
 
         if (text.equals("/start")) {
             if (!ue) {
@@ -86,7 +89,6 @@ public class TextMsgHandler {
                     }
                 }
             }
-
             return;
         }
 
@@ -94,10 +96,12 @@ public class TextMsgHandler {
             msg.processMessage(Messages.adminMsgHelp(update, appConfig.getLogChat()));
             msg.processMessage(new ForwardMessage(String.valueOf(appConfig.getLogChat()), String.valueOf(chatId), msgId));
             activationService.deleteByUserId(chatId);
-            return;
         }
+    }
 
-
-        msg.processMessage(Messages.mainMenu(chatId, -1));
+    public void newMembers(Update update, List<User> newChatMembers) {
+        Long chatId = update.getMessage().getChatId();
+        User u = newChatMembers.getFirst();
+        msg.processMessage(Messages.welcomeMessage(update, u, chatId));
     }
 }
