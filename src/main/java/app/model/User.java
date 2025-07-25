@@ -27,6 +27,11 @@ public class User {
     private LocalDate firstSeen;
     private LocalDate lastAction;
 
+    private boolean isActive;
+    private long lastSubscribeChecked;
+
+    private boolean kickUserFromChat;
+
     public User(Update update, Long chatId, Long referrerId) {
         this.chatId = chatId;
         this.userName = UpdateNameExtractor.extractUserName(update);

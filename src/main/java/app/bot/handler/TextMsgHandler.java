@@ -2,7 +2,6 @@ package app.bot.handler;
 
 import app.bot.api.MessagingService;
 import app.bot.data.Messages;
-import app.bot.telegramdata.TelegramData;
 import app.config.AppConfig;
 import app.bot.api.CheckSubscribeToChannel;
 import app.service.ActivationService;
@@ -10,12 +9,10 @@ import app.service.ReferralService;
 import app.service.UserService;
 import app.service.WelcomeMessageService;
 import app.util.ExtractReferralIdFromStartCommand;
-import lombok.Lombok;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 

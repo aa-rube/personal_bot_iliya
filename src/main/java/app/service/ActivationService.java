@@ -32,40 +32,40 @@ public class ActivationService {
     @Scheduled(cron = "0 * * * * *") // каждую минуту
     public void sendNotification() {
 
-        long threeHoursAgo = System.currentTimeMillis() - (3 * 60 * 60 * 1000);
-        List<Activation> outdated = activationRepository.findAllByStepAndTimestampLessThan(0, threeHoursAgo);
+        long timeAgo = System.currentTimeMillis() - (3 * 60 * 60 * 1000);
+        List<Activation> outdated = activationRepository.findAllByStepAndTimestampLessThan(0, timeAgo);
         outdated.forEach(a -> {
             a.stepByStep(0);
             msg.processMessage(Messages.areYouOk(a.getUserId()));
             save(a);
         });
 
-        long twelveHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
-        outdated = activationRepository.findAllByStepAndTimestampLessThan(1, twelveHoursAgo);
+        timeAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+        outdated = activationRepository.findAllByStepAndTimestampLessThan(1, timeAgo);
         outdated.forEach(a -> {
             a.stepByStep(0);
             msg.processMessage(Messages.share(a.getUserId(), -1));
             save(a);
         });
 
-        long seventyTwoHoursAgo = System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000);
-        outdated = activationRepository.findAllByStepAndTimestampLessThan(2, seventyTwoHoursAgo);
+        timeAgo = System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000);
+        outdated = activationRepository.findAllByStepAndTimestampLessThan(2, timeAgo);
         outdated.forEach(a -> {
             a.stepByStep(0);
             msg.processMessage(Messages.share(a.getUserId(), -1));
             save(a);
         });
 
-        long sevenDaysAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000);
-        outdated = activationRepository.findAllByStepAndTimestampLessThan(3, sevenDaysAgo);
+        timeAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000);
+        outdated = activationRepository.findAllByStepAndTimestampLessThan(3, timeAgo);
         outdated.forEach(a -> {
             a.stepByStep(0);
             msg.processMessage(Messages.share(a.getUserId(), -1));
             save(a);
         });
 
-        long halfMonthAgo = System.currentTimeMillis() - (14 * 24 * 60 * 60 * 1000);
-        outdated = activationRepository.findAllByStepAndTimestampLessThan(4, halfMonthAgo);
+        timeAgo = System.currentTimeMillis() - (14 * 24 * 60 * 60 * 1000);
+        outdated = activationRepository.findAllByStepAndTimestampLessThan(4, timeAgo);
         outdated.forEach(a -> {
             a.stepByStep(0);
             msg.processMessage(Messages.share(a.getUserId(), -1));

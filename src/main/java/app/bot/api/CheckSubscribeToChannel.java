@@ -23,9 +23,22 @@ public class CheckSubscribeToChannel {
     }
 
     public boolean hasNotSubscription(MessagingService msg, Update update, Long chatId, int msgId, boolean subscribeChek) {
-        List<Partner> partnersList = partners.findAll();
-        Map<Partner, Boolean> results = new HashMap<>();
+        Map<Partner, Boolean> results = check(msg, chatId, partners.findAll());
 
+        if (!results.containsValue(false)) {
+            if (subscribeChek) {
+                msg.processMessage(Messages.uniqueLink(chatId, msgId));
+            }
+
+            return false;
+        } else {
+            msg.processMessage(Messages.subscribeMsg(update, chatId, msgId, results));
+            return true;
+        }
+    }
+
+    public Map<Partner, Boolean> check(MessagingService msg, Long chatId, List<Partner> partnersList) {
+        Map<Partner, Boolean> results = new HashMap<>();
         for (Partner partner : partnersList) {
             String status;
 
@@ -40,24 +53,12 @@ public class CheckSubscribeToChannel {
                     && !status.equals("null")
                     && (status.equals("member")
                     || status.equals("creator")
-                    || status.equals("administrator")))
-            {
+                    || status.equals("administrator"))) {
                 results.put(partner, true);
             } else {
                 results.put(partner, false);
             }
         }
-
-        if (!results.containsValue(false)) {
-
-            if (subscribeChek) {
-                msg.processMessage(Messages.uniqueLink(chatId, msgId));
-            }
-
-            return false;
-        } else {
-            msg.processMessage(Messages.subscribeMsg(update, chatId, msgId, results));
-            return true;
-        }
+        return results;
     }
 }

@@ -4,6 +4,8 @@ import app.bot.telegramdata.TelegramData;
 import app.model.Partner;
 import app.util.LinkWrapper;
 import app.util.UpdateNameExtractor;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -182,4 +184,21 @@ public class Messages {
         return TelegramData.getSendMessage(chatId, msg, null);
     }
 
+    public static Object leftUser(Long chatId) {
+        String s = """
+                Я заметил, что вы отписались от telegram-канала Mr.SuperNew.
+                
+                Чтобы сохранить доступ к закрытому чату «C GPT на ТЫ», подпишитесь, пожалуйста, обратно и нажмите «Проверить подписку».
+                
+                Если вы не восстановите подписку нв течение 48 часов, доступ к закрытому чату по нейросетям будет приостановлен
+                """;
+        return new SendMessage(String.valueOf(chatId), s);
+    }
+
+    public static Object kickUserFromChat(Long chatId, Long userId) {
+        BanChatMember banRequest = new BanChatMember();
+        banRequest.setChatId(chatId.toString());
+        banRequest.setUserId(userId);
+        return banRequest;
+    }
 }

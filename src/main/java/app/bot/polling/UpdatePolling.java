@@ -32,7 +32,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        log.info("We have an update: {}", update);
+        log.info("update: {}", update);
 
         if (update.hasCallbackQuery()) {
             callBackData(update);
