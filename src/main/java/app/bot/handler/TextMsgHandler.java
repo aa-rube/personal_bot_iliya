@@ -8,6 +8,7 @@ import app.bot.api.CheckSubscribeToChannel;
 import app.service.ActivationService;
 import app.service.ReferralService;
 import app.service.UserService;
+import app.service.WelcomeMessageService;
 import app.util.ExtractReferralIdFromStartCommand;
 import lombok.Lombok;
 import lombok.extern.slf4j.Slf4j;
@@ -31,13 +32,15 @@ public class TextMsgHandler {
     private final ReferralService referralService;
     private final CheckSubscribeToChannel subscribe;
     private final ActivationService activationService;
+    private final WelcomeMessageService welcome;
 
     public TextMsgHandler(AppConfig appConfig,
                           CheckSubscribeToChannel subscribe,
                           UserService userService,
                           ReferralService referralService,
                           ActivationService activationService,
-                          @Lazy MessagingService msg
+                          @Lazy MessagingService msg,
+                          WelcomeMessageService welcome
     ) {
         this.msg = msg;
         this.appConfig = appConfig;
@@ -45,6 +48,7 @@ public class TextMsgHandler {
         this.userService = userService;
         this.referralService = referralService;
         this.activationService = activationService;
+        this.welcome = welcome;
     }
 
 
@@ -102,6 +106,7 @@ public class TextMsgHandler {
     public void newMembers(Update update, List<User> newChatMembers) {
         Long chatId = update.getMessage().getChatId();
         User u = newChatMembers.getFirst();
-        msg.processMessage(Messages.welcomeMessage(update, u, chatId));
+        int welcomeMessageId = msg.processMessageReturnMsgId(Messages.welcomeMessage(update, u, chatId));
+        welcome.saveAndSchedule(chatId, welcomeMessageId);
     }
 }

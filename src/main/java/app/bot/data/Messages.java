@@ -159,7 +159,7 @@ public class Messages {
 
     public static Object welcomeMessage(Update update, User user, Long chatId) {
         String msg = """
-                Привет! 👋 [username] Добро пожаловать в [groupname]!
+                Привет! 👋 [username] Добро пожаловать в [title]!
                 Здесь ты найдёшь всё, что нужно для комфортной работы с ChatGPT, установки приложения и оплаты подписки.
                 ___
                 🔗 Полезные темы:
@@ -176,7 +176,7 @@ public class Messages {
                 P.S. это сообщение будет удалено через 5 мин.
                 """
                 .replaceAll("\\[username]", UpdateNameExtractor.userExtractName(user))
-                .replaceAll("\\[groupname]", UpdateNameExtractor.extractGroupTitleName(update)
+                .replaceAll("\\[title]", UpdateNameExtractor.extractGroupTitleName(update)
                 );
 
         return TelegramData.getSendMessage(chatId, msg, null);

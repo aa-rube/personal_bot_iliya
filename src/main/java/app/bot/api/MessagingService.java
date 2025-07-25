@@ -66,4 +66,25 @@ public class MessagingService {
         }
     }
 
+    public int processMessageReturnMsgId(Object msg) {
+        try {
+            if (msg instanceof SendMessage) {
+                return updatePolling.executeAsync((SendMessage) msg).get().getMessageId();
+            }
+
+            else if (msg instanceof SendPhoto) {
+                return updatePolling.executeAsync((SendPhoto) msg).get().getMessageId();
+            }
+
+            else if (msg instanceof ForwardMessage) {
+                updatePolling.executeAsync((ForwardMessage) msg);
+                return ((ForwardMessage) msg).getMessageId();
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return -1;
+    }
+
 }
