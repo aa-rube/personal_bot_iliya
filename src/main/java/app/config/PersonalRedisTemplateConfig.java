@@ -29,12 +29,4 @@ public class PersonalRedisTemplateConfig {
         return tpl;
     }
 
-    @Bean
-    public TaskScheduler taskScheduler() {
-        ThreadPoolTaskScheduler s = new ThreadPoolTaskScheduler();
-        s.setPoolSize(2);
-        s.setThreadNamePrefix("welcome-delay-");
-        s.initialize();
-        return s;
-    }
 }
