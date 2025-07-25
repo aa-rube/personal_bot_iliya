@@ -3,6 +3,7 @@ package app.service;
 import app.bot.api.MessagingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -17,7 +18,6 @@ import java.util.Set;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class WelcomeMessageService {
 
     private static final String KEY_TEMPLATE = "welcome:%d:%d";
@@ -28,6 +28,13 @@ public class WelcomeMessageService {
 
     private final StringRedisTemplate redis;
     private final MessagingService msg;
+
+    public WelcomeMessageService(
+            StringRedisTemplate redis,
+            @Lazy MessagingService msg) {
+        this.redis = redis;
+        this.msg = msg;
+    }
 
     public void save(long chatId, int msgId) {
         String key = key(chatId, msgId);
