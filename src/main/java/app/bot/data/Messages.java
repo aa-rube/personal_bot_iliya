@@ -146,7 +146,6 @@ public class Messages {
 
     public static Object userMsgHelp(Long chatId) {
         String s = "Можем связаться с вами в самое ближайшее время! Поделитесь Вашим контактом, пожалуйста!";
-        activationService.deleteByUserId(chatId);
         return TelegramData.getSendMessage(chatId, s, Keyboards.contactShare());
     }
 
