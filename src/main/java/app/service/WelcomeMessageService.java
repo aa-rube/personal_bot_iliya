@@ -3,7 +3,7 @@ package app.service;
 import app.bot.api.MessagingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -26,58 +26,68 @@ public class WelcomeMessageService {
     private static final Duration POLL_PERIOD = Duration.ofSeconds(10);
     private static final Pattern KEY_PATTERN = Pattern.compile("^welcome:groupid:(\\d+):msgid:(\\d+)$");
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redis;
     private final TaskScheduler taskScheduler;
     private final MessagingService msg;
 
     public WelcomeMessageService(@Lazy MessagingService msg,
                                  TaskScheduler taskScheduler,
-                                 RedisTemplate<String, Object> redisTemplate
-    ) {
+                                 StringRedisTemplate redis) {
         this.msg = msg;
-        this.redisTemplate = redisTemplate;
+        this.redis = redis;
         this.taskScheduler = taskScheduler;
     }
 
     public void saveAndSchedule(Long groupId, Integer msgId) {
+        log.info("Scheduling welcome message deletion: groupId={}, msgId={}", groupId, msgId);
         String key = String.format(KEY_TEMPLATE, groupId, msgId);
-        redisTemplate.opsForValue().set(key, msgId.longValue(), TTL);
+        redis.opsForValue().set(key, String.valueOf(msgId), TTL);
         long executeAt = System.currentTimeMillis() + DELAY.toMillis();
-        Boolean added = redisTemplate.opsForZSet().add(QUEUE_ZSET, key, executeAt);
-        // debug log
-        System.out.printf("Added to ZSET=%s, key=%s, score=%d, result=%s%n",
-                QUEUE_ZSET, key, executeAt, added);
+        Boolean added = redis.opsForZSet().add(QUEUE_ZSET, key, executeAt);
+        log.info("ZADD {} {} {} => {}", QUEUE_ZSET, executeAt, key, added);
     }
 
     @PostConstruct
     void init() {
+        log.info("Initializing WelcomeMessageService with TTL={}, DELAY={}, POLL_PERIOD={}", TTL, DELAY, POLL_PERIOD);
         processDueTasks(); // добираем хвосты после рестарта
         taskScheduler.scheduleAtFixedRate(this::processDueTasks, POLL_PERIOD);
+        log.info("WelcomeMessageService initialized and scheduled");
     }
 
     private void processDueTasks() {
         long now = System.currentTimeMillis();
-        Set<Object> due = redisTemplate.opsForZSet().rangeByScore(QUEUE_ZSET, 0, now);
-        if (due == null || due.isEmpty()) return;
+        Set<String> due = redis.opsForZSet().rangeByScore(QUEUE_ZSET, 0, now);
+        if (due == null || due.isEmpty()) {
+            log.trace("No due tasks found in queue");
+            return;
+        }
 
-        for (Object obj : due) {
-            String key = String.valueOf(obj);
+        log.info("Processing {} due tasks from queue", due.size());
+        for (String obj : due) {
+            String key = obj;
             ParsedKey k = parseKey(key);
             if (k == null) {
-                redisTemplate.opsForZSet().remove(QUEUE_ZSET, obj);
+                log.warn("Invalid key format in queue, removing: {}", key);
+                redis.opsForZSet().remove(QUEUE_ZSET, obj);
                 continue;
             }
+            
+            log.info("Processing deletion for groupId={}, msgId={}", k.groupId, k.msgId);
             try {
                 msg.processMessage(new DeleteMessage(String.valueOf(k.groupId), k.msgId));
+                log.info("Successfully deleted welcome message: groupId={}, msgId={}", k.groupId, k.msgId);
             } catch (Exception e) {
-                System.err.printf("Failed to delete msg %d in %d: %s%n", k.msgId, k.groupId, e.getMessage());
+                log.error("Failed to delete welcome message: groupId={}, msgId={}, error={}", k.groupId, k.msgId, e.getMessage(), e);
             }
 
             // Убираем из очереди
-            redisTemplate.opsForZSet().remove(QUEUE_ZSET, obj);
+            redis.opsForZSet().remove(QUEUE_ZSET, obj);
             // основное значение можно удалить вручную
-            redisTemplate.delete(key);
+            redis.delete(key);
+            log.info("Cleaned up queue and key for: {}", key);
         }
+        log.info("Completed processing {} due tasks", due.size());
     }
 
     private ParsedKey parseKey(String key) {
