@@ -1,7 +1,7 @@
 package app.service;
 
 import app.bot.api.MessagingService;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class WelcomeMessageService {
 
@@ -22,7 +23,7 @@ public class WelcomeMessageService {
     private static final String QUEUE_ZSET   = "welcome:delete-queue";                // member = key, score = executeAtMillis
     private static final Duration TTL   = Duration.ofMinutes(10);
     private static final Duration DELAY = Duration.ofMinutes(5);
-    private static final long POLL_PERIOD_MS = 10_000; // как часто опрашиваем очередь
+    private static final Duration POLL_PERIOD = Duration.ofSeconds(10);
     private static final Pattern KEY_PATTERN = Pattern.compile("^welcome:groupid:(\\d+):msgid:(\\d+)$");
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -42,13 +43,16 @@ public class WelcomeMessageService {
         String key = String.format(KEY_TEMPLATE, groupId, msgId);
         redisTemplate.opsForValue().set(key, msgId.longValue(), TTL);
         long executeAt = System.currentTimeMillis() + DELAY.toMillis();
-        redisTemplate.opsForZSet().add(QUEUE_ZSET, key, executeAt);
+        Boolean added = redisTemplate.opsForZSet().add(QUEUE_ZSET, key, executeAt);
+        // debug log
+        System.out.printf("Added to ZSET=%s, key=%s, score=%d, result=%s%n",
+                QUEUE_ZSET, key, executeAt, added);
     }
 
     @PostConstruct
     void init() {
-        processDueTasks();
-        taskScheduler.scheduleAtFixedRate(this::processDueTasks, POLL_PERIOD_MS);
+        processDueTasks(); // добираем хвосты после рестарта
+        taskScheduler.scheduleAtFixedRate(this::processDueTasks, POLL_PERIOD);
     }
 
     private void processDueTasks() {
@@ -63,11 +67,15 @@ public class WelcomeMessageService {
                 redisTemplate.opsForZSet().remove(QUEUE_ZSET, obj);
                 continue;
             }
-            msg.processMessage(new DeleteMessage(String.valueOf(k.groupId), k.msgId));
+            try {
+                msg.processMessage(new DeleteMessage(String.valueOf(k.groupId), k.msgId));
+            } catch (Exception e) {
+                System.err.printf("Failed to delete msg %d in %d: %s%n", k.msgId, k.groupId, e.getMessage());
+            }
 
             // Убираем из очереди
             redisTemplate.opsForZSet().remove(QUEUE_ZSET, obj);
-            //ключ сам умрёт через TTL, но можно подчистить "руками" если нужно:
+            // основное значение можно удалить вручную
             redisTemplate.delete(key);
         }
     }

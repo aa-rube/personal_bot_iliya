@@ -15,8 +15,6 @@ public class JsonParserUtil {
         return new Parser(dump).parseRoot();
     }
 
-    /* -------------------- ниже — простой рекурсивный парсер -------------------- */
-
     private static final class Parser {
         private final char[] src;
         private int p = 0;
@@ -199,6 +197,11 @@ public class JsonParserUtil {
         private boolean eof() {
             return p >= src.length;
         }
+    }
+
+
+    public static void main(String[] args) {
+        System.out.println(toJson("Update(updateId=744371656, message=Message(messageId=29, messageThreadId=null, from=User(id=6714443394, firstName=javaDev, isBot=false, lastName=null, userName=sdelautgbota, languageCode=ru, canJoinGroups=null, canReadAllGroupMessages=null, supportInlineQueries=null, isPremium=null, addedToAttachmentMenu=null), date=1753460781, chat=Chat(id=-1002317608626, type=supergroup, title=С GPT-на-Ты: Клуб Доверия к Нейросетям, firstName=null, lastName=null, userName=null, photo=null, description=null, inviteLink=null, pinnedMessage=null, stickerSetName=null, canSetStickerSet=null, permissions=null, slowModeDelay=null, bio=null, linkedChatId=null, location=null, messageAutoDeleteTime=null, hasPrivateForwards=null, HasProtectedContent=null, joinToSendMessages=null, joinByRequest=null, hasRestrictedVoiceAndVideoMessages=null, isForum=true, activeUsernames=null, emojiStatusCustomEmojiId=null, hasAggressiveAntiSpamEnabled=null, hasHiddenMembers=null, emojiStatusExpirationDate=null, availableReactions=null, accentColorId=null, backgroundCustomEmojiId=null, profileAccentColorId=null, profileBackgroundCustomEmojiId=null, hasVisibleHistory=null, unrestrictBoostCount=null, customEmojiStickerSetName=null), forwardFrom=null, forwardFromChat=null, forwardDate=null, text=null, entities=null, captionEntities=null, audio=null, document=null, photo=null, sticker=null, video=null, contact=null, location=null, venue=null, animation=null, pinnedMessage=null, newChatMembers=[], leftChatMember=User(id=6714443394, firstName=javaDev, isBot=false, lastName=null, userName=sdelautgbota, languageCode=ru, canJoinGroups=null, canReadAllGroupMessages=null, supportInlineQueries=null, isPremium=null, addedToAttachmentMenu=null), newChatTitle=null, newChatPhoto=null, deleteChatPhoto=null, groupchatCreated=null, replyToMessage=null, voice=null, caption=null, superGroupCreated=null, channelChatCreated=null, migrateToChatId=null, migrateFromChatId=null, editDate=null, game=null, forwardFromMessageId=null, invoice=null, successfulPayment=null, videoNote=null, authorSignature=null, forwardSignature=null, mediaGroupId=null, connectedWebsite=null, passportData=null, forwardSenderName=null, poll=null, replyMarkup=null, dice=null, viaBot=null, senderChat=null, proximityAlertTriggered=null, messageAutoDeleteTimerChanged=null, isAutomaticForward=null, hasProtectedContent=true, webAppData=null, videoChatStarted=null, videoChatEnded=null, videoChatParticipantsInvited=null, videoChatScheduled=null, isTopicMessage=null, forumTopicCreated=null, forumTopicClosed=null, forumTopicReopened=null, forumTopicEdited=null, generalForumTopicHidden=null, generalForumTopicUnhidden=null, writeAccessAllowed=null, hasMediaSpoiler=null, userShared=null, chatShared=null, story=null, externalReplyInfo=null, forwardOrigin=null, linkPreviewOptions=null, quote=null, usersShared=null, giveawayCreated=null, giveaway=null, giveawayWinners=null, giveawayCompleted=null, replyToStory=null, boostAdded=null, senderBoostCount=null), inlineQuery=null, chosenInlineQuery=null, callbackQuery=null, editedMessage=null, channelPost=null, editedChannelPost=null, shippingQuery=null, preCheckoutQuery=null, poll=null, pollAnswer=null, myChatMember=null, chatMember=null, chatJoinRequest=null, messageReaction=null, messageReactionCount=null, chatBoost=null, removedChatBoost=null)"));
     }
 
 }
