@@ -50,7 +50,7 @@ public class WelcomeMessageService {
         sweep();
     }
 
-    @Scheduled(fixedDelay = 6000) // 1 минут в миллисекундах
+    @Scheduled(fixedDelay = 6000 * 3) // 3 минут в миллисекундах
     public void scheduledSweep() {
         sweep();
     }
