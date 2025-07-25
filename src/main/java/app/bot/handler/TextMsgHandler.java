@@ -107,6 +107,6 @@ public class TextMsgHandler {
         Long chatId = update.getMessage().getChatId();
         User u = newChatMembers.getFirst();
         int welcomeMessageId = msg.processMessageReturnMsgId(Messages.welcomeMessage(update, u, chatId));
-        welcome.saveAndSchedule(chatId, welcomeMessageId);
+        welcome.save(chatId, welcomeMessageId);
     }
 }

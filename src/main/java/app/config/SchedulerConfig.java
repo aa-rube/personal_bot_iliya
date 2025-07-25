@@ -10,9 +10,9 @@ public class SchedulerConfig {
 
     @Bean
     public TaskScheduler taskScheduler() {
-        ThreadPoolTaskScheduler s = new ThreadPoolTaskScheduler();
+        var s = new ThreadPoolTaskScheduler();
         s.setPoolSize(2);
-        s.setThreadNamePrefix("welcome-delay-");
+        s.setThreadNamePrefix("welcome-");
         s.initialize();
         return s;
     }

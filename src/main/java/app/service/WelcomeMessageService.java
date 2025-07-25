@@ -1,102 +1,111 @@
 package app.service;
 
 import app.bot.api.MessagingService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 
-
-import javax.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class WelcomeMessageService {
 
-    private static final String KEY_TEMPLATE = "welcome:groupid:%d:msgid:%d";          // value: msgId
-    private static final String QUEUE_ZSET   = "welcome:delete-queue";                // member = key, score = executeAtMillis
-    private static final Duration TTL   = Duration.ofMinutes(10);
-    private static final Duration DELAY = Duration.ofMinutes(5);
-    private static final Duration POLL_PERIOD = Duration.ofSeconds(10);
-    private static final Pattern KEY_PATTERN = Pattern.compile("^welcome:groupid:(\\d+):msgid:(\\d+)$");
+    private static final String KEY_TEMPLATE = "welcome:%d:%d";
+    private static final String SCAN_PATTERN = "welcome:*:*";
+
+    private static final Duration TTL = Duration.ofMinutes(10);
+    private static final Duration DELETE_AFTER = Duration.ofMinutes(5);
 
     private final StringRedisTemplate redis;
-    private final TaskScheduler taskScheduler;
     private final MessagingService msg;
 
-    public WelcomeMessageService(@Lazy MessagingService msg,
-                                 TaskScheduler taskScheduler,
-                                 StringRedisTemplate redis) {
-        this.msg = msg;
-        this.redis = redis;
-        this.taskScheduler = taskScheduler;
+    public void save(long chatId, int msgId) {
+        String key = key(chatId, msgId);
+        String value = System.currentTimeMillis() + "|" + chatId + "|" + msgId;
+
+        redis.opsForValue().set(key, value, TTL);
+        log.debug("Saved welcome key={} val={}", key, value);
     }
 
-    public void saveAndSchedule(Long groupId, Integer msgId) {
-        log.info("Scheduling welcome message deletion: groupId={}, msgId={}", groupId, msgId);
-        String key = String.format(KEY_TEMPLATE, groupId, msgId);
-        redis.opsForValue().set(key, String.valueOf(msgId), TTL);
-        long executeAt = System.currentTimeMillis() + DELAY.toMillis();
-        Boolean added = redis.opsForZSet().add(QUEUE_ZSET, key, executeAt);
-        log.info("ZADD {} {} {} => {}", QUEUE_ZSET, executeAt, key, added);
+    @EventListener(ApplicationReadyEvent.class)
+    public void onAppReady() {
+        log.info("WelcomeMessageService: first sweep after startup");
+        sweep();
     }
 
-    @PostConstruct
-    void init() {
-        log.info("Initializing WelcomeMessageService with TTL={}, DELAY={}, POLL_PERIOD={}", TTL, DELAY, POLL_PERIOD);
-        processDueTasks(); // добираем хвосты после рестарта
-        taskScheduler.scheduleAtFixedRate(this::processDueTasks, POLL_PERIOD);
-        log.info("WelcomeMessageService initialized and scheduled");
+    @Scheduled(fixedDelayString = "${welcome.poll-delay:10s}")
+    public void scheduledSweep() {
+        sweep();
     }
 
-    private void processDueTasks() {
+    private void sweep() {
         long now = System.currentTimeMillis();
-        Set<String> due = redis.opsForZSet().rangeByScore(QUEUE_ZSET, 0, now);
-        if (due == null || due.isEmpty()) {
-            log.trace("No due tasks found in queue");
+
+        // 1) non-blocking SCAN
+        try (var cursor = redis.executeWithStickyConnection(conn ->
+                conn.scan(ScanOptions.scanOptions().match(SCAN_PATTERN).count(500).build()))) {
+
+            while (cursor.hasNext()) {
+                String key = new String(cursor.next(), StandardCharsets.UTF_8);
+                handleKey(now, key);
+            }
+            return;                         // SCAN успех
+        } catch (Exception e) {
+            log.warn("Redis SCAN failed, fallback to KEYS: {}", e.toString());
+        }
+
+        // 2) fallback KEYS (мало welcome-ключей → ок)
+        Set<String> keys = redis.keys(SCAN_PATTERN);
+        if (keys.isEmpty()) return;
+        for (String key : keys) handleKey(now, key);
+    }
+
+    private void handleKey(long now, String key) {
+        String val = redis.opsForValue().get(key);
+        if (val == null) return;
+
+        String[] parts = val.split("\\|", 3);
+        if (parts.length < 3) {
+            redis.delete(key);
+            log.warn("Bad format, key removed: {}", key);
             return;
         }
 
-        log.info("Processing {} due tasks from queue", due.size());
-        for (String obj : due) {
-            String key = obj;
-            ParsedKey k = parseKey(key);
-            if (k == null) {
-                log.warn("Invalid key format in queue, removing: {}", key);
-                redis.opsForZSet().remove(QUEUE_ZSET, obj);
-                continue;
-            }
-            
-            log.info("Processing deletion for groupId={}, msgId={}", k.groupId, k.msgId);
-            try {
-                msg.processMessage(new DeleteMessage(String.valueOf(k.groupId), k.msgId));
-                log.info("Successfully deleted welcome message: groupId={}, msgId={}", k.groupId, k.msgId);
-            } catch (Exception e) {
-                log.error("Failed to delete welcome message: groupId={}, msgId={}, error={}", k.groupId, k.msgId, e.getMessage(), e);
-            }
-
-            // Убираем из очереди
-            redis.opsForZSet().remove(QUEUE_ZSET, obj);
-            // основное значение можно удалить вручную
+        long ts, chatId;
+        int msgId;
+        try {
+            ts = Long.parseLong(parts[0]);
+            chatId = Long.parseLong(parts[1]);
+            msgId = Integer.parseInt(parts[2]);
+        } catch (NumberFormatException ex) {
             redis.delete(key);
-            log.info("Cleaned up queue and key for: {}", key);
+            log.warn("Parse error, key removed: {} → {}", key, val);
+            return;
         }
-        log.info("Completed processing {} due tasks", due.size());
+
+        if (now - ts < DELETE_AFTER.toMillis()) return; // ещё рано
+
+        try {
+            msg.processMessage(new DeleteMessage(String.valueOf(chatId), msgId));
+            redis.delete(key);
+            log.debug("Deleted welcome message chatId={}, msgId={}", chatId, msgId);
+        } catch (Exception e) {
+            // оставляем ключ → повторим позже
+            log.error("TG delete failed chatId={}, msgId={}, retry later. Err={}", chatId, msgId, e.toString(), e);
+        }
     }
 
-    private ParsedKey parseKey(String key) {
-        Matcher m = KEY_PATTERN.matcher(key);
-        if (!m.matches()) return null;
-        long g = Long.parseLong(m.group(1));
-        int  mId = Integer.parseInt(m.group(2));
-        return new ParsedKey(g, mId);
+    private static String key(long chatId, int msgId) {
+        return String.format(KEY_TEMPLATE, chatId, msgId);
     }
-
-    private record ParsedKey(long groupId, int msgId) {}
 }
