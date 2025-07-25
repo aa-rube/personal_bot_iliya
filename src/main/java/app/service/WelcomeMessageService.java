@@ -7,7 +7,8 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 
-import jakarta.annotation.PostConstruct;
+
+import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.Set;
 import java.util.regex.Matcher;
