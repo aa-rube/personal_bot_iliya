@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.List;
 import java.util.Map;
 
 public class Messages {
@@ -89,9 +90,9 @@ public class Messages {
         userName: {un}
         chatId: {id}
         
-        {rid} пригласил всего (за 24 часа) {count}
+        Пользователь пригласил всего (за 24 часа) = {count} друзей
         """     .replace("{un}", UpdateNameExtractor.usernameAndFullName(update))
-                .replace("{id}", String.valueOf(chatId))
+                .replace("{id}", String.valueOf(ref))
                 .replace("{rid}", String.valueOf(ref))
                 .replace("{count}", String.valueOf(count));
         return TelegramData.getSendMessage(chatId, text, null);
@@ -215,5 +216,14 @@ public class Messages {
     public static Object popAward(String callBackQueryId) {
         String s = "У вас не достаточно баллов.";
         return TelegramData.getPopupMessage(callBackQueryId, s, false);
+    }
+
+    public static Object adminPanel(Long chatId) {
+        String s = "Редактирование приветственного сообщения:";
+        return TelegramData.getSendMessage(chatId, s, Keyboards.editWelcomeMessage());
+    }
+
+    public static Object emptyWelcome(Long chatId) {
+        return new SendMessage(String.valueOf(chatId), "Еще не задано ни одного сообщения");
     }
 }

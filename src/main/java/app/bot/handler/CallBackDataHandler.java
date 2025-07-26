@@ -7,6 +7,7 @@ import app.bot.telegramdata.TelegramData;
 import app.config.AppConfig;
 import app.model.Activation;
 import app.service.ActivationService;
+import app.service.BuildAutoMessageService;
 import app.service.ReferralService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -26,18 +27,21 @@ public class CallBackDataHandler {
     private final ReferralService referralService;
     private final CheckSubscribeToChannel subscribe;
     private final ActivationService activationService;
+    private final BuildAutoMessageService autoMessageService;
 
     public CallBackDataHandler(@Lazy MessagingService msg,
                                AppConfig appConfig,
                                CheckSubscribeToChannel subscribe,
                                ReferralService referralService,
-                               ActivationService activationService
+                               ActivationService activationService,
+                               BuildAutoMessageService autoMessageService
     ) {
         this.appConfig = appConfig;
         this.msg = msg;
         this.subscribe = subscribe;
         this.referralService = referralService;
         this.activationService = activationService;
+        this.autoMessageService = autoMessageService;
     }
 
     public void updateHandler(Update update) {
@@ -84,6 +88,13 @@ public class CallBackDataHandler {
             }
             case "award_no" -> {
                 msg.processMessage(Messages.popAward(update.getCallbackQuery().getId()));
+            }
+            case "edit_welcome_msg" -> {
+                msg.processMessage(Messages.adminPanel(chatId));
+                Object o = autoMessageService.getAutoMsg(chatId);
+                o = o == null ? Messages.emptyWelcome(chatId) : o;
+
+                msg.processMessage(o);
             }
         }
 

@@ -72,4 +72,17 @@ public class Keyboards {
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
     }
+
+    public static InlineKeyboardMarkup editWelcomeMessage() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Редактировать сообщение",
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "edit_welcome_msg",
+                        "main_menu"
+                }
+        );
+    }
 }

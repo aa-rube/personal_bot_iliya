@@ -96,6 +96,13 @@ public class TextMsgHandler {
             }
         }
 
+        if (text.equals("/admin")) {
+            if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
+                msg.processMessage(Messages.adminPanel(chatId));
+            }
+            return;
+        }
+
         if (update.hasMessage() && update.getMessage().hasContact()) {
             msg.processMessage(Messages.adminMsgHelp(update, appConfig.getLogChat()));
             msg.processMessage(new ForwardMessage(String.valueOf(appConfig.getLogChat()), String.valueOf(chatId), msgId));
