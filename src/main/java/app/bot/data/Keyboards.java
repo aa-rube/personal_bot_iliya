@@ -34,7 +34,7 @@ public class Keyboards {
     }
 
     public static InlineKeyboardMarkup mainKb() {
-        return TelegramData.createInlineKeyboardLine(
+        return TelegramData.createInlineKeyboardColumn(
                 new String[]{"\uD83C\uDF81 Мои баллы", "\uD83D\uDC65 Пригласить друзей", "\uD83D\uDECD Потратить баллы"},
                 new String[]{"my_bolls", "share", "spend_bolls"}
         );
