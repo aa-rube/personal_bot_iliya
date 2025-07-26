@@ -105,6 +105,6 @@ public class UserService {
     }
 
     private List<User> findUsers(long time) {
-        return userRepository.findAllByIsKickUserFromChatAndIsActiveAndLastSubscribeCheckedLessThan(false, true, time);
+        return userRepository.findAllByKickActiveBefore(false, true, time);
     }
 }

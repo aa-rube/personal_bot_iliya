@@ -39,7 +39,12 @@ public class User {
         this.referrerId = referrerId;
         this.level = 0;
         this.points = 0;
+
         this.firstSeen = LocalDate.now();
         this.lastAction = LocalDate.now();
+
+        this.lastSubscribeChecked = System.currentTimeMillis();
+        this.isActive = true;
+        this.isKickUserFromChat = false;
     }
 }
