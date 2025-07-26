@@ -3,6 +3,7 @@ package app.bot.handler;
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
 import app.bot.data.Messages;
+import app.bot.telegramdata.TelegramData;
 import app.config.AppConfig;
 import app.model.Activation;
 import app.service.ActivationService;
@@ -57,6 +58,10 @@ public class CallBackDataHandler {
                     return;
                 }
             }
+            case "main_menu" -> {
+                msg.processMessage(Messages.mainMenu(chatId, msgId));
+                return;
+            }
             case "my_bolls" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.myBolls(chatId, msgId, m));
@@ -72,10 +77,13 @@ public class CallBackDataHandler {
                 msg.processMessage(Messages.spendBolls(chatId, msgId, m));
                 return;
             }
-            case "award" -> {
+            case "award_yes" -> {
                 msg.processMessage(Messages.requestAward(chatId, msgId));
                 msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
                 return;
+            }
+            case "award_no" -> {
+                msg.processMessage(Messages.popAward(update.getCallbackQuery().getId()));
             }
         }
 

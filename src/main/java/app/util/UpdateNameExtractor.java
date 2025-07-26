@@ -93,4 +93,7 @@ public class UpdateNameExtractor {
         return title;
     }
 
+    public static String usernameAndFullName(Update update) {
+        return extractFullName(update) + ", " + extractUserName(update);
+    }
 }

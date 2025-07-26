@@ -75,16 +75,25 @@ public class Messages {
     public static Object spendBolls(Long chatId, int msgId, Map<String, String> m) {
         String text = """
                 Доступные награды:
-                • 1-часовая личная консультация — 100 баллов (reward 1) ⚡
+                • 1-часовая личная консультация — 100 баллов ⚡
                 
                 Каталог призов будет расширяться. Копите баллы, чтобы первыми получать новые возможности!
                 """;
         long b = Long.parseLong(m.getOrDefault("b", "0"));
-        return TelegramData.getEditMessage(chatId, text, b >= 100 ? Keyboards.award() : Keyboards.mainKb(), msgId);
+        return TelegramData.getEditMessage(chatId, text, Keyboards.award(b), msgId);
     }
 
-    public static Object newUser(Long chatId) {
-        String text = "Новый подтверждённый пользователь";
+    public static Object newUser(Update update, Long chatId, Long ref, int count) {
+        String text = """
+        Новый приглашенный пользователь:
+        userName: {un}
+        chatId: {id}
+        
+        {rid} пригласил всего (за 24 часа) {count}
+        """     .replace("{un}", UpdateNameExtractor.usernameAndFullName(update))
+                .replace("{id}", String.valueOf(chatId))
+                .replace("{rid}", String.valueOf(ref))
+                .replace("{count}", String.valueOf(count));
         return TelegramData.getSendMessage(chatId, text, null);
     }
 
@@ -154,7 +163,7 @@ public class Messages {
 
     public static Object adminMsgHelp(Update update, Long logChat) {
         String s = "Пользователь {uid} запросил помощи"
-                .replace("{uid}", UpdateNameExtractor.extractFullName(update) + ", " + UpdateNameExtractor.extractUserName(update))
+                .replace("{uid}", UpdateNameExtractor.usernameAndFullName(update))
                 .replace("{cid}", String.valueOf(logChat));
         return TelegramData.getSendMessage(logChat, s, null);
     }
@@ -200,5 +209,12 @@ public class Messages {
         banRequest.setChatId(chatId.toString());
         banRequest.setUserId(userId);
         return banRequest;
+    }
+
+    public static Object popAward(String callBackQueryId) {
+        String s = """
+                У вас не достаточно баллов. Поделитесь ссылкой на бота с друзьями, чтобы заработать еще баллы
+                """;
+        return TelegramData.getPopupMessage(callBackQueryId, s, true);
     }
 }

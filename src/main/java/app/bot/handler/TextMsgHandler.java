@@ -81,7 +81,7 @@ public class TextMsgHandler {
                     msg.processMessage(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));
                     msg.processMessage(Messages.overInviteLimitForUser(ref));
                 } else {
-                    msg.processMessage(Messages.newUser(appConfig.getLogChat()));
+                    msg.processMessage(Messages.newUser(update, appConfig.getLogChat(), ref, c));
 
                     Map<String, String> m = referralService.getUsrLevel(chatId);
                     long count = Long.parseLong(m.getOrDefault("b", "0"));

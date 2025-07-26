@@ -40,10 +40,16 @@ public class Keyboards {
         );
     }
 
-    public static InlineKeyboardMarkup award() {
-        return TelegramData.createInlineKeyboardLine(
-                new String[]{"\uD83C\uDF81 Забрать награду"},
-                new String[]{"award"}
+    public static InlineKeyboardMarkup award(long b) {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "\uD83C\uDF81 Забрать награду {b}/100".replace("{b}", String.valueOf(b)),
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "award_" + (b < 100 ? "no" : "yes"),
+                        "main_menu"
+                }
         );
     }
 
