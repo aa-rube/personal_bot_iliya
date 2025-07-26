@@ -94,6 +94,15 @@ public class CallBackDataHandler {
             case "award_no" -> {
                 msg.processMessage(Messages.popAward(update.getCallbackQuery().getId()));
             }
+            case "watch_welcome_msg" -> {
+                if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
+                    Object o = autoMessageService.getAutoMsg(chatId, null, null);
+                    o = o == null ? Messages.emptyWelcome(chatId) : o;
+                    msg.processMessage(o);
+                }
+
+                return;
+            }
             case "edit_welcome_msg" -> {
                 if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
                     Object o = autoMessageService.getAutoMsg(chatId, null, null);
@@ -102,10 +111,10 @@ public class CallBackDataHandler {
 
                     msg.processMessage(new SendMessage(String.valueOf(chatId),
                             """
-                    Введите текст нового сообщение для приветствия.
-                    
-                    Можно использовать все типы форматирования телеграм кроме премиум emoji
-                    """
+                                    Введите текст нового сообщение для приветствия.
+                                    
+                                    Можно использовать все типы форматирования телеграм кроме премиум emoji
+                                    """
                     ));
                     stateManager.editWelcomeMessage.put(chatId, "edit_welcome_message");
                 }

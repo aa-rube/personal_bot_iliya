@@ -76,10 +76,12 @@ public class Keyboards {
     public static InlineKeyboardMarkup editWelcomeMessage() {
         return TelegramData.createInlineKeyboardColumn(
                 new String[]{
+                        "Просмотреть сообщение",
                         "Редактировать сообщение",
                         "⏪ Назад"
                 },
                 new String[]{
+                        "watch_welcome_msg",
                         "edit_welcome_msg",
                         "main_menu"
                 }
