@@ -104,7 +104,7 @@ public class TextMsgHandler {
                 msg.processMessage(Messages.adminPanel(chatId));
 
                 Object wm = autoMessageService.getAutoMsg(chatId, null, null);
-                msg.processMessageReturnMsgId(wm);
+                msg.processMessage(wm);
             }
             return;
         }

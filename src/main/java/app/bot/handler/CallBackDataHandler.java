@@ -101,7 +101,12 @@ public class CallBackDataHandler {
                     msg.processMessage(o);
 
                     msg.processMessage(new SendMessage(String.valueOf(chatId),
-                            "Введите новое сообщение. Можно добавить 1 медиа(фото/анимацию/видео/голосовое сообщение)"));
+                            """
+                    Введите текст нового сообщение для приветствия.
+                    
+                    Можно использовать все типы форматирования телеграм кроме премиум emoji
+                    """
+                    ));
                     stateManager.editWelcomeMessage.put(chatId, "edit_welcome_message");
                 }
             }
