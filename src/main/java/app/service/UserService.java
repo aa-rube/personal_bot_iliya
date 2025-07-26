@@ -65,7 +65,7 @@ public class UserService {
             List<User> users = userRepository.findAll();
             log.info("Найдено {} пользователей для проверки (3 часа)", users.size());
             users.forEach(user -> {
-                if (!user.isKickUserFromChat()) {
+                if (user.isActive() && !user.isKickUserFromChat()) {
                     log.info("Проверяем пользователя: {}", user.getChatId());
                     boolean hasSubscribe = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
                     if (!hasSubscribe) {
@@ -84,7 +84,7 @@ public class UserService {
             long timeAgo = System.currentTimeMillis() - (48 * 60 * 60 * 1000);
             log.info("Найдено {} пользователей для исключения (48 часов)", users.size());
             users.forEach(user -> {
-                if (user.getLastSubscribeChecked() < timeAgo) {
+                if (!user.isActive() && user.getLastSubscribeChecked() < timeAgo) {
 
                     log.info("Проверяем пользователя для исключения: {}", user.getChatId());
                     boolean hasSubscribe = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
