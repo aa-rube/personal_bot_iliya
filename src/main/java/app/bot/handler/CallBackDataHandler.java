@@ -105,10 +105,6 @@ public class CallBackDataHandler {
             }
             case "edit_welcome_msg" -> {
                 if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
-                    Object o = autoMessageService.getAutoMsg(chatId, null, null);
-                    o = o == null ? Messages.emptyWelcome(chatId) : o;
-                    msg.processMessage(o);
-
                     msg.processMessage(new SendMessage(String.valueOf(chatId),
                             """
                                     Введите текст нового сообщение для приветствия.
