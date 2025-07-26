@@ -213,7 +213,7 @@ public class Messages {
 
     public static Object popAward(String callBackQueryId) {
         String s = """
-                У вас не достаточно баллов. Поделитесь ссылкой на бота с друзьями, чтобы заработать еще баллы
+                У вас не достаточно баллов.
                 """;
         return TelegramData.getPopupMessage(callBackQueryId, s, true);
     }
