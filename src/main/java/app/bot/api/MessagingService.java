@@ -2,6 +2,9 @@ package app.bot.api;
 
 import app.bot.polling.UpdatePolling;
 import app.bot.telegramdata.TelegramData;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -16,73 +19,68 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
+@RequiredArgsConstructor
 public class MessagingService {
+
+    private static final Logger log = LoggerFactory.getLogger(MessagingService.class);
 
     private final UpdatePolling updatePolling;
 
-    @Autowired
-    public MessagingService(UpdatePolling updatePolling) {
-        this.updatePolling = updatePolling;
-    }
-
     public void processMessage(Object msg) {
+        log.info("Обрабатываем сообщение типа: {}", msg.getClass().getSimpleName());
         try {
-            if (msg instanceof SendMessage) {
-                updatePolling.executeAsync((SendMessage) msg);
-            } else if (msg instanceof SendPhoto) {
-                updatePolling.executeAsync((SendPhoto) msg);
-            } else if (msg instanceof EditMessageText) {
-                updatePolling.executeAsync((EditMessageText) msg);
-            } else if (msg instanceof DeleteMessage) {
-                updatePolling.executeAsync((DeleteMessage) msg);
-            } else if (msg instanceof EditMessageReplyMarkup) {
-                updatePolling.executeAsync((EditMessageReplyMarkup) msg);
-            } else if (msg instanceof SendMediaGroup) {
-                updatePolling.execute((SendMediaGroup) msg);
-            } else if (msg instanceof EditMessageCaption) {
-                updatePolling.executeAsync((EditMessageCaption) msg);
-            } else if (msg instanceof ForwardMessage) {
-                updatePolling.executeAsync((ForwardMessage) msg);
-            } else if (msg instanceof AnswerCallbackQuery) {
-                updatePolling.executeAsync((AnswerCallbackQuery) msg);
-            } else if (msg instanceof SendVideo) {
-                updatePolling.executeAsync((SendVideo) msg);
-            } else if (msg instanceof SendAudio) {
-                updatePolling.executeAsync((SendAudio) msg);
-            } else if (msg instanceof EditMessageMedia) {
-                updatePolling.executeAsync((EditMessageMedia) msg);
+            switch (msg) {
+                case SendMessage sendMessage -> updatePolling.executeAsync(sendMessage);
+                case SendPhoto sendPhoto -> updatePolling.executeAsync(sendPhoto);
+                case EditMessageText editMessageText -> updatePolling.executeAsync(editMessageText);
+                case DeleteMessage deleteMessage -> updatePolling.executeAsync(deleteMessage);
+                case EditMessageReplyMarkup editMessageReplyMarkup -> updatePolling.executeAsync(editMessageReplyMarkup);
+                case SendMediaGroup sendMediaGroup -> updatePolling.execute(sendMediaGroup);
+                case EditMessageCaption editMessageCaption -> updatePolling.executeAsync(editMessageCaption);
+                case ForwardMessage forwardMessage -> updatePolling.executeAsync(forwardMessage);
+                case AnswerCallbackQuery answerCallbackQuery -> updatePolling.executeAsync(answerCallbackQuery);
+                case SendVideo sendVideo -> updatePolling.executeAsync(sendVideo);
+                case SendAudio sendAudio -> updatePolling.executeAsync(sendAudio);
+                case EditMessageMedia editMessageMedia -> updatePolling.executeAsync(editMessageMedia);
+                default -> {
+                }
             }
 
         } catch (Exception exception) {
-            exception.printStackTrace();
+            log.error("Ошибка при обработке сообщения типа {}: {}", msg.getClass().getSimpleName(), exception.getMessage(), exception);
         }
     }
 
     public ChatMember getChatMember(GetChatMember member) {
+        log.info("Получаем информацию о участнике чата: {}", member.getChatId());
         try {
             return updatePolling.execute(member);
         } catch (TelegramApiException telegramApiException) {
+            log.error("Ошибка при получении участника чата {}: {}", member.getChatId(), telegramApiException.getMessage());
             return null;
         }
     }
 
     public int processMessageReturnMsgId(Object msg) {
+        log.info("Обрабатываем сообщение с возвратом ID типа: {}", msg.getClass().getSimpleName());
         try {
-            if (msg instanceof SendMessage) {
-                return updatePolling.executeAsync((SendMessage) msg).get().getMessageId();
-            }
-
-            else if (msg instanceof SendPhoto) {
-                return updatePolling.executeAsync((SendPhoto) msg).get().getMessageId();
-            }
-
-            else if (msg instanceof ForwardMessage) {
-                updatePolling.executeAsync((ForwardMessage) msg);
-                return ((ForwardMessage) msg).getMessageId();
+            switch (msg) {
+                case SendMessage sendMessage -> {
+                    return updatePolling.executeAsync(sendMessage).get().getMessageId();
+                }
+                case SendPhoto sendPhoto -> {
+                    return updatePolling.executeAsync(sendPhoto).get().getMessageId();
+                }
+                case ForwardMessage forwardMessage -> {
+                    updatePolling.executeAsync(forwardMessage);
+                    return forwardMessage.getMessageId();
+                }
+                default -> {
+                }
             }
 
         } catch (Exception exception) {
-            exception.printStackTrace();
+            log.error("Ошибка при обработке сообщения с возвратом ID типа {}: {}", msg.getClass().getSimpleName(), exception.getMessage(), exception);
         }
         return -1;
     }
