@@ -102,6 +102,9 @@ public class TextMsgHandler {
         if (text.equals("/admin")) {
             if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
                 msg.processMessage(Messages.adminPanel(chatId));
+
+                Object wm = autoMessageService.getAutoMsg(chatId, null, null);
+                msg.processMessageReturnMsgId(wm);
             }
             return;
         }
