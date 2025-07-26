@@ -39,25 +39,37 @@ public class UpdatePolling extends TelegramLongPollingBot {
         }
 
         else if (update.hasMessage() && update.getMessage().hasText()) {
-            new Thread(() -> textMsgHandler.updateHandler(update)).start();
+            try {
+                new Thread(() -> textMsgHandler.updateHandler(update)).start();
+            } catch (Exception e) {
+                log.error("Text: {}", e.getMessage());
+            }
         }
 
         if (update.hasMessage()
                 && update.getMessage().getNewChatMembers() != null
                 && !update.getMessage().getNewChatMembers().isEmpty()) {
-            textMsgHandler.newMembers(update, update.getMessage().getNewChatMembers());
+            try {
+                textMsgHandler.newMembers(update, update.getMessage().getNewChatMembers());
+            } catch (Exception e) {
+                log.error("New member: {}", e.getMessage());
+            }
         }
     }
 
     private void callBackData(Update update) {
-        new Thread(() -> callBackDataHandler.updateHandler(update)).start();
+        try {
+            new Thread(() -> callBackDataHandler.updateHandler(update)).start();
 
-        new Thread(() -> {
-            try {
-                executeAsync(TelegramData.getCallbackQueryAnswer(update));
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
+            new Thread(() -> {
+                try {
+                    executeAsync(TelegramData.getCallbackQueryAnswer(update));
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+        } catch (Exception e) {
+            log.error("CallBackData: {}", e.getMessage());
+        }
     }
 }

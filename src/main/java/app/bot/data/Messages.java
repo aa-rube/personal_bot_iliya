@@ -19,7 +19,7 @@ public class Messages {
             String text = """
                     Привет, {name}!
                     Чтобы попасть в закрытый чат <b>«С GPT-на-Ты: Клуб Доверия к Нейросетям»</b>,
-                    с пошаговыми инструкциями по установке ChatGPT, сначала подпишитесь на мой канал 
+                    с пошаговыми инструкциями по установке ChatGPT, сначала подпишитесь на мой канал
                     {link}. После подписки нажмите «Проверить подписку» и доступ откроется автоматически.
                     """
                     .replace("{name}", name)
@@ -212,9 +212,7 @@ public class Messages {
     }
 
     public static Object popAward(String callBackQueryId) {
-        String s = """
-                У вас не достаточно баллов.
-                """;
+        String s = "У вас не достаточно баллов.";
         return TelegramData.getPopupMessage(callBackQueryId, s, false);
     }
 }
