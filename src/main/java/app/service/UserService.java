@@ -2,7 +2,7 @@ package app.service;
 
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
-import app.bot.data.Messages;
+import app.data.Messages;
 import app.model.Partner;
 import app.model.User;
 import app.repository.PartnersRepository;

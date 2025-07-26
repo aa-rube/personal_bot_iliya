@@ -1,24 +1,19 @@
 package app.service;
 
 import app.bot.api.MessagingService;
-import app.bot.data.Messages;
 import app.model.AutoMessage;
-import app.model.MediaGroupData;
-import app.model.MediaType;
+import app.data.MediaType;
 import app.repository.AutoMessageRepository;
-import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class BuildAutoMessageService {
@@ -122,10 +117,10 @@ public class BuildAutoMessageService {
         return map;
     }
 
-    public Object getAutoMsg(Long sendInChatId) {
+    public Object getAutoMsg(Long sendInChatId, Update update, User u) {
         try {
             Optional<AutoMessage> oam = repo.findById(123456789L);
-            return oam.map(autoMessage -> autoMessage.getMessages(sendInChatId)).orElse(null);
+            return oam.map(autoMessage -> autoMessage.getMessages(sendInChatId, update, u)).orElse(null);
         } catch (Exception e) {
             log.error("Error finding message: {}", e.getMessage());
             return Optional.empty();

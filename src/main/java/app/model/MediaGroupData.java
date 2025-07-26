@@ -1,5 +1,6 @@
 package app.model;
 
+import app.data.MediaType;
 import lombok.Getter;
 import lombok.Setter;
 import org.json.JSONObject;

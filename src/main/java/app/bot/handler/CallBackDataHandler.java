@@ -2,17 +2,17 @@ package app.bot.handler;
 
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
-import app.bot.data.Messages;
-import app.bot.telegramdata.TelegramData;
+import app.data.Messages;
 import app.config.AppConfig;
 import app.model.Activation;
 import app.service.ActivationService;
 import app.service.BuildAutoMessageService;
 import app.service.ReferralService;
+import app.service.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.HashMap;
@@ -28,13 +28,15 @@ public class CallBackDataHandler {
     private final CheckSubscribeToChannel subscribe;
     private final ActivationService activationService;
     private final BuildAutoMessageService autoMessageService;
+    private final StateManager stateManager;
 
     public CallBackDataHandler(@Lazy MessagingService msg,
                                AppConfig appConfig,
                                CheckSubscribeToChannel subscribe,
                                ReferralService referralService,
                                ActivationService activationService,
-                               BuildAutoMessageService autoMessageService
+                               BuildAutoMessageService autoMessageService,
+                               StateManager stateManager
     ) {
         this.appConfig = appConfig;
         this.msg = msg;
@@ -42,6 +44,7 @@ public class CallBackDataHandler {
         this.referralService = referralService;
         this.activationService = activationService;
         this.autoMessageService = autoMessageService;
+        this.stateManager = stateManager;
     }
 
     public void updateHandler(Update update) {
@@ -50,6 +53,8 @@ public class CallBackDataHandler {
         int msgId = update.getCallbackQuery().getMessage().getMessageId();
 
         log.info("msgId: {}, chatId: {}, data: {}", msgId, chatId, data);
+
+        stateManager.editWelcomeMessage.remove(chatId);
 
         if (!data.equals("subscribe_chek")) {
             if (subscribe.hasNotSubscription(msg, update, chatId, msgId, false)) return;
@@ -90,11 +95,15 @@ public class CallBackDataHandler {
                 msg.processMessage(Messages.popAward(update.getCallbackQuery().getId()));
             }
             case "edit_welcome_msg" -> {
-                msg.processMessage(Messages.adminPanel(chatId));
-                Object o = autoMessageService.getAutoMsg(chatId);
-                o = o == null ? Messages.emptyWelcome(chatId) : o;
+                if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
+                    Object o = autoMessageService.getAutoMsg(chatId, null, null);
+                    o = o == null ? Messages.emptyWelcome(chatId) : o;
+                    msg.processMessage(o);
 
-                msg.processMessage(o);
+                    msg.processMessage(new SendMessage(String.valueOf(chatId),
+                            "Введите новое сообщение. Можно добавить 1 медиа(фото/анимацию/видео/голосовое сообщение)"));
+                    stateManager.editWelcomeMessage.put(chatId, "edit_welcome_message");
+                }
             }
         }
 

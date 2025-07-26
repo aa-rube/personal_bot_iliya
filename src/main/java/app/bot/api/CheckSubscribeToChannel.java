@@ -1,6 +1,6 @@
 package app.bot.api;
 
-import app.bot.data.Messages;
+import app.data.Messages;
 import app.model.Partner;
 import app.repository.PartnersRepository;
 import lombok.extern.slf4j.Slf4j;

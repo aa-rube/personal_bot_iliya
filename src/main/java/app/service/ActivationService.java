@@ -1,17 +1,14 @@
 package app.service;
 
 import app.bot.api.MessagingService;
-import app.bot.data.Messages;
+import app.data.Messages;
 import app.model.Activation;
 import app.repository.ActivationRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ActivationService {

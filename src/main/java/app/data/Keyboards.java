@@ -1,4 +1,4 @@
-package app.bot.data;
+package app.data;
 
 import app.bot.telegramdata.TelegramData;
 import app.model.Partner;

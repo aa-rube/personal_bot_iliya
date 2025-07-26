@@ -1,13 +1,10 @@
 package app.bot.handler;
 
 import app.bot.api.MessagingService;
-import app.bot.data.Messages;
+import app.data.Messages;
 import app.config.AppConfig;
 import app.bot.api.CheckSubscribeToChannel;
-import app.service.ActivationService;
-import app.service.ReferralService;
-import app.service.UserService;
-import app.service.WelcomeMessageService;
+import app.service.*;
 import app.util.ExtractReferralIdFromStartCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -29,7 +26,9 @@ public class TextMsgHandler {
     private final ReferralService referralService;
     private final CheckSubscribeToChannel subscribe;
     private final ActivationService activationService;
+    private final BuildAutoMessageService autoMessageService;
     private final WelcomeMessageService welcome;
+    private final StateManager stateManager;
 
     public TextMsgHandler(AppConfig appConfig,
                           CheckSubscribeToChannel subscribe,
@@ -37,7 +36,9 @@ public class TextMsgHandler {
                           ReferralService referralService,
                           ActivationService activationService,
                           @Lazy MessagingService msg,
-                          WelcomeMessageService welcome
+                          BuildAutoMessageService autoMessageService,
+                          WelcomeMessageService welcome,
+                          StateManager stateManager
     ) {
         this.msg = msg;
         this.appConfig = appConfig;
@@ -45,12 +46,14 @@ public class TextMsgHandler {
         this.userService = userService;
         this.referralService = referralService;
         this.activationService = activationService;
+        this.autoMessageService = autoMessageService;
         this.welcome = welcome;
+        this.stateManager = stateManager;
     }
 
 
     public void updateHandler(Update update) {
-        String text = update.getMessage().getText();
+        String text = update.getMessage().getText() == null ? "" : update.getMessage().getText();
         Long chatId = update.getMessage().getChatId();
         int msgId = update.getMessage().getMessageId();
 
@@ -103,6 +106,11 @@ public class TextMsgHandler {
             return;
         }
 
+        if (stateManager.editWelcomeMessage.getOrDefault(chatId, "").equals("edit_welcome_message")) {
+            autoMessageService.getOrAwaitScheduleMessage(chatId, update.getMessage());
+            return;
+        }
+
         if (update.hasMessage() && update.getMessage().hasContact()) {
             msg.processMessage(Messages.adminMsgHelp(update, appConfig.getLogChat()));
             msg.processMessage(new ForwardMessage(String.valueOf(appConfig.getLogChat()), String.valueOf(chatId), msgId));
@@ -113,7 +121,8 @@ public class TextMsgHandler {
     public void newMembers(Update update, List<User> newChatMembers) {
         Long chatId = update.getMessage().getChatId();
         User u = newChatMembers.getFirst();
-        int welcomeMessageId = msg.processMessageReturnMsgId(Messages.welcomeMessage(update, u, chatId));
+        Object wm = autoMessageService.getAutoMsg(chatId, update, u);
+        int welcomeMessageId = msg.processMessageReturnMsgId(wm);
         welcome.save(chatId, welcomeMessageId);
     }
 }

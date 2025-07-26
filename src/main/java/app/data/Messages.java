@@ -1,4 +1,4 @@
-package app.bot.data;
+package app.data;
 
 import app.bot.telegramdata.TelegramData;
 import app.model.Partner;
@@ -9,7 +9,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.List;
 import java.util.Map;
 
 public class Messages {
@@ -169,30 +168,6 @@ public class Messages {
         return TelegramData.getSendMessage(logChat, s, null);
     }
 
-    public static Object welcomeMessage(Update update, User user, Long chatId) {
-        String msg = """
-                Привет! 👋 [username] Добро пожаловать в [title]!
-                Здесь ты найдёшь всё, что нужно для комфортной работы с ChatGPT, установки приложения и оплаты подписки.
-                ___
-                🔗 Полезные темы:
-                1. Введение — Как использовать ChatGPT для бизнеса, учебы и личных задач?
-                2. Общий чат — Задавай вопросы и получай ответы
-                3. Эфиры — Записи и анонсы эфиров
-                4. Android: установка приложения
-                5. iPhone: установка приложения
-                6. Оплата ChatGPT
-                ___
-                Если у тебя возникнут вопросы, пиши в общий чат — здесь всегда помогут!
-                Хорошего общения и продуктивного использования ChatGPT! 🚀
-                
-                P.S. это сообщение будет удалено через 5 мин.
-                """
-                .replaceAll("\\[username]", UpdateNameExtractor.userExtractName(user))
-                .replaceAll("\\[title]", UpdateNameExtractor.extractGroupTitleName(update)
-                );
-
-        return TelegramData.getSendMessage(chatId, msg, null);
-    }
 
     public static Object leftUser(Long chatId) {
         String s = """
