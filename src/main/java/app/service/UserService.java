@@ -55,49 +55,49 @@ public class UserService {
             log.warn("Проверка подписок уже выполняется, пропускаем");
             return;
         }
-        
+
         isRunning = true;
         try {
             log.info("Начинаем проверку подписок пользователей");
-        this.partnerList = this.partnerList.isEmpty() ? partners.findAll() : this.partnerList;
-        log.info("Загружено {} партнеров для проверки", partnerList.size());
+            this.partnerList = this.partnerList.isEmpty() ? partners.findAll() : this.partnerList;
+            log.info("Загружено {} партнеров для проверки", partnerList.size());
 
-        long timeAgo = System.currentTimeMillis() - (3 * 60 * 60 * 1000);
-        List<User> users = findUsers(timeAgo);
-        log.info("Найдено {} пользователей для проверки (3 часа)", users.size());
-        users.forEach(user -> {
-            log.info("Проверяем пользователя: {}", user.getChatId());
-            boolean isActive = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
-            if (!isActive) {
-                log.warn("Пользователь {} неактивен, отправляем уведомление", user.getChatId());
-                msg.processMessage(Messages.leftUser(user.getChatId()));
-            }
+            long timeAgo = System.currentTimeMillis() - (3 * 60 * 60 * 1000);
+            List<User> users = findUsers(timeAgo);
 
-            user.setActive(isActive);
-            user.setLastSubscribeChecked(System.currentTimeMillis());
-            userRepository.save(user);
-            Sleep.sleepSafely(3000);
-        });
+            log.info("Найдено {} пользователей для проверки (3 часа)", users.size());
+            users.forEach(user -> {
+                log.info("Проверяем пользователя: {}", user.getChatId());
+                boolean hasSubscribe = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
+                if (!hasSubscribe) {
+                    log.warn("Пользователь {} неактивен, отправляем уведомление", user.getChatId());
+                    msg.processMessage(Messages.leftUser(user.getChatId()));
+                }
+
+                user.setActive(hasSubscribe);
+                user.setLastSubscribeChecked(System.currentTimeMillis());
+                userRepository.save(user);
+                Sleep.sleepSafely(3000);
+            });
 
 
+            timeAgo = System.currentTimeMillis() - (48 * 60 * 60 * 1000);
+            users = findUsers(timeAgo);
+            log.info("Найдено {} пользователей для исключения (48 часов)", users.size());
+            users.forEach(user -> {
+                log.info("Проверяем пользователя для исключения: {}", user.getChatId());
+                boolean hasSubscribe = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
+                if (!hasSubscribe) {
+                    log.warn("Исключаем неактивного пользователя: {}", user.getChatId());
+                    msg.processMessage(Messages.kickUserFromChat(user.getChatId(), -1002317608626L));
+                }
 
-        timeAgo = System.currentTimeMillis() - (48 * 60 * 60 * 1000);
-        users = findUsers(timeAgo);
-        log.info("Найдено {} пользователей для исключения (48 часов)", users.size());
-        users.forEach(user -> {
-            log.info("Проверяем пользователя для исключения: {}", user.getChatId());
-            boolean isActive = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
-            if (!isActive) {
-                log.warn("Исключаем неактивного пользователя: {}", user.getChatId());
-                msg.processMessage(Messages.kickUserFromChat(user.getChatId(), -1002317608626L));
-            }
+                user.setKickUserFromChat(true);
+                user.setLastSubscribeChecked(System.currentTimeMillis() + (1825L * 60L * 60L * 1000L));
+                userRepository.save(user);
+                Sleep.sleepSafely(3000);
+            });
 
-            user.setKickUserFromChat(true);
-            user.setLastSubscribeChecked(System.currentTimeMillis() + (1825L * 60L * 60L * 1000L));
-            userRepository.save(user);
-            Sleep.sleepSafely(3000);
-        });
-        
             log.info("Проверка подписок завершена");
         } finally {
             isRunning = false;

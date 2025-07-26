@@ -215,6 +215,6 @@ public class Messages {
         String s = """
                 У вас не достаточно баллов.
                 """;
-        return TelegramData.getPopupMessage(callBackQueryId, s, true);
+        return TelegramData.getPopupMessage(callBackQueryId, s, false);
     }
 }
