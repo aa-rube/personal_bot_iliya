@@ -70,27 +70,30 @@ public class TextMsgHandler {
         }
 
         if (text.contains("/start ")) {
+            try {
+                if (!ue) {
+                    Long ref = ExtractReferralIdFromStartCommand.extract(text);
+                    int c = referralService.updateRefUserWithCount(chatId, ref);
 
-            if (!ue) {
-                Long ref = ExtractReferralIdFromStartCommand.extract(text);
-                int c = referralService.updateRefUserWithCount(chatId, ref);
+                    userService.saveUser(update, chatId, ref);
 
-                userService.saveUser(update, chatId, ref);
+                    if (c > 100) {
+                        msg.processMessage(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));
+                        msg.processMessage(Messages.overInviteLimitForUser(ref));
+                    } else {
+                        msg.processMessage(Messages.newUser(update, appConfig.getLogChat(), ref, c));
 
-                if (c > 100) {
-                    msg.processMessage(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));
-                    msg.processMessage(Messages.overInviteLimitForUser(ref));
-                } else {
-                    msg.processMessage(Messages.newUser(update, appConfig.getLogChat(), ref, c));
-
-                    Map<String, String> m = referralService.getUsrLevel(chatId);
-                    long count = Long.parseLong(m.getOrDefault("b", "0"));
-                    if (count != 0 && count % 10 == 0) {
-                        msg.processMessage(Messages.cheers(ref, m));
+                        Map<String, String> m = referralService.getUsrLevel(chatId);
+                        long count = Long.parseLong(m.getOrDefault("b", "0"));
+                        if (count != 0 && count % 10 == 0) {
+                            msg.processMessage(Messages.cheers(ref, m));
+                        }
                     }
                 }
+                return;
+            } catch (Exception e) {
+                log.error("new referral exception: {}", e.getMessage());
             }
-            return;
         }
 
         if (update.hasMessage() && update.getMessage().hasContact()) {

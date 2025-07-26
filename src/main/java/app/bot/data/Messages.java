@@ -195,6 +195,7 @@ public class Messages {
 
     public static Object leftUser(Long chatId) {
         String s = """
+                ⚠️⚠️⚠️
                 Я заметил, что вы отписались от telegram-канала Mr.SuperNew.
                 
                 Чтобы сохранить доступ к закрытому чату «C GPT на ТЫ», подпишитесь, пожалуйста, обратно и нажмите «Проверить подписку».

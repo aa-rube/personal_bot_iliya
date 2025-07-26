@@ -7,13 +7,11 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.List;
 
 public interface UserRepository extends MongoRepository<User, Long> {
+    // Для проверки активных пользователей (интервал: 3 часа)
+    @Query("{ 'active' : true, 'kickUserFromChat' : false, 'lastSubscribeChecked' : { $lt: ?0 } }")
+    List<User> findActiveUsersForSubscriptionCheck(long lastCheckedBefore);
 
-    @Query("{ 'isKickUserFromChat': ?0, 'isActive': ?1, 'lastSubscribeChecked': { $lt: ?2 } }")
-    List<User> findAllByKickActiveBefore(boolean kickUserFromChat,
-                                         boolean isActive,
-                                         long lastSubscribeChecked);
-
-    // Если чаще нужно именно TRUE/TRUE:
-    @Query("{ 'isKickUserFromChat': true, 'isActive': true, 'lastSubscribeChecked': { $lt: ?0 } }")
-    List<User> findAllKickedActiveBefore(long lastSubscribeChecked);
+    // Для исключения неактивных (интервал: 48 часов)
+    @Query("{ 'active' : false, 'kickUserFromChat' : false, 'lastSubscribeChecked' : { $lt: ?0 } }")
+    List<User> findInactiveUsersForKickCheck(long lastCheckedBefore);
 }
