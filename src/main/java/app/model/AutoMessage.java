@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -83,8 +84,8 @@ public class AutoMessage {
 
     public Object getMessages(Long chatId, Update update, User user) {
         String content = getContent()
-                .replaceAll("\\[username]", UpdateNameExtractor.userExtractName(user))
-                .replaceAll("\\[title]", UpdateNameExtractor.extractGroupTitleName(update));
+                .replaceAll("\\[username]", user == null ? "test" : UpdateNameExtractor.userExtractName(user))
+                .replaceAll("\\[title]", user == null ? "test" : UpdateNameExtractor.extractGroupTitleName(update));
 
         if (mediaDataCount() == 0) {
             return TelegramDataAutoMessage.getSendMessage(chatId, content, textEntities);
