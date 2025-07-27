@@ -32,43 +32,54 @@ public class ActivationService {
         long timeAgo = System.currentTimeMillis() - (3 * 60 * 60 * 1000);
         List<Activation> outdated = activationRepository.findAllByStepAndTimestampLessThan(0, timeAgo);
         outdated.forEach(a -> {
-            a.stepByStep(0);
-            msg.processMessage(Messages.areYouOk(a.getUserId()));
-            save(a);
+            int s = a.stepByStep(0);
+            if (s == 0) {
+                msg.processMessage(Messages.areYouOk(a.getUserId()));
+                save(a);
+            }
         });
 
         timeAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
         outdated = activationRepository.findAllByStepAndTimestampLessThan(1, timeAgo);
         outdated.forEach(a -> {
-            a.stepByStep(0);
-            msg.processMessage(Messages.share(a.getUserId(), -1));
-            save(a);
+            int s = a.stepByStep(1);
+            if (s == 1) {
+                msg.processMessage(Messages.share(a.getUserId(), -1));
+                save(a);
+            }
         });
 
         timeAgo = System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000);
         outdated = activationRepository.findAllByStepAndTimestampLessThan(2, timeAgo);
         outdated.forEach(a -> {
-            a.stepByStep(0);
-            msg.processMessage(Messages.share(a.getUserId(), -1));
-            save(a);
+            int s = a.stepByStep(2);
+            if (s == 2) {
+                msg.processMessage(Messages.share(a.getUserId(), -1));
+                save(a);
+            }
         });
 
         timeAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000);
         outdated = activationRepository.findAllByStepAndTimestampLessThan(3, timeAgo);
         outdated.forEach(a -> {
-            a.stepByStep(0);
-            msg.processMessage(Messages.share(a.getUserId(), -1));
-            save(a);
+            int s = a.stepByStep(3);
+            if (s == 3) {
+                msg.processMessage(Messages.share(a.getUserId(), -1));
+                save(a);
+            }
         });
 
         timeAgo = System.currentTimeMillis() - (14 * 24 * 60 * 60 * 1000);
         outdated = activationRepository.findAllByStepAndTimestampLessThan(4, timeAgo);
         outdated.forEach(a -> {
-            a.stepByStep(0);
-            msg.processMessage(Messages.share(a.getUserId(), -1));
+            int s = a.stepByStep(4);
+            if (s == 4) {
+                msg.processMessage(Messages.share(a.getUserId(), -1));
+            }
             deleteByUserId(a.getUserId());
         });
     }
+//6599589390
 
 
     /**
