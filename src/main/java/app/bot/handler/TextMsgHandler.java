@@ -66,9 +66,9 @@ public class TextMsgHandler {
         if (text.equals("/start")) {
             if (!ue) {
                 userService.saveUser(update, chatId, 0L);
-            } else {
-                msg.processMessage(Messages.mainMenu(chatId, -1));
             }
+
+            msg.processMessage(Messages.mainMenu(chatId, -1));
             return;
         }
 
