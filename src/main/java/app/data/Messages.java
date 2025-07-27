@@ -189,7 +189,7 @@ public class Messages {
     }
 
     public static Object popAward(String callBackQueryId) {
-        String s = "У вас не достаточно баллов.";
+        String s = "У вас не достаточно баллов.\nПригласите больше друзей!";
         return TelegramData.getPopupMessage(callBackQueryId, s, false);
     }
 
