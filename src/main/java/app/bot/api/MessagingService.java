@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.*;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
@@ -39,6 +40,7 @@ public class MessagingService {
                 case SendAudio sendAudio -> bot.executeAsync(sendAudio);
                 case EditMessageMedia editMessageMedia -> bot.executeAsync(editMessageMedia);
                 case BanChatMember ban -> bot.executeAsync(ban);
+                case PinChatMessage pin -> bot.executeAsync(pin);
                 default -> {
                 }
             }

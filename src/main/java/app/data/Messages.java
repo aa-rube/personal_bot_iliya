@@ -68,7 +68,7 @@ public class Messages {
                 Баллы сохраняются, а призовой каталог будет расширяться. Делитесь ссылкой и собирайте их заранее! 🔗
                 {link}
                 """.replace("{link}", link);
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, null)
                 : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
     }
 

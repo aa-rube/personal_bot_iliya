@@ -7,6 +7,7 @@ import app.repository.ActivationRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 
 import java.util.List;
 
@@ -34,7 +35,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(0);
             if (s == 0) {
-                msg.processMessage(Messages.areYouOk(a.getUserId()));
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
         });
@@ -44,7 +46,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(1);
             if (s == 1) {
-                msg.processMessage(Messages.share(a.getUserId(), -1));
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
         });
@@ -54,7 +57,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(2);
             if (s == 2) {
-                msg.processMessage(Messages.share(a.getUserId(), -1));
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
         });
@@ -64,7 +68,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(3);
             if (s == 3) {
-                msg.processMessage(Messages.share(a.getUserId(), -1));
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
         });
@@ -74,7 +79,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(4);
             if (s == 4) {
-                msg.processMessage(Messages.share(a.getUserId(), -1));
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
             }
             deleteByUserId(a.getUserId());
         });
