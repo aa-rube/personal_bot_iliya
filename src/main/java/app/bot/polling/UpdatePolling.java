@@ -36,9 +36,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
 
         if (update.hasCallbackQuery()) {
             callBackData(update);
-        }
-
-        else if (update.hasMessage() && update.getMessage().hasText()) {
+        } else if (update.hasMessage() && update.getMessage().hasText()) {
             try {
                 new Thread(() -> textMsgHandler.updateHandler(update)).start();
             } catch (Exception e) {
@@ -50,7 +48,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
                 && update.getMessage().getNewChatMembers() != null
                 && !update.getMessage().getNewChatMembers().isEmpty()) {
             try {
-                textMsgHandler.newMembers(update, update.getMessage().getNewChatMembers());
+                new Thread(() -> textMsgHandler.newMembers(update, update.getMessage().getNewChatMembers())).start();
             } catch (Exception e) {
                 log.error("New member: {}", e.getMessage());
             }
@@ -61,13 +59,17 @@ public class UpdatePolling extends TelegramLongPollingBot {
         try {
             new Thread(() -> callBackDataHandler.updateHandler(update)).start();
 
-            new Thread(() -> {
-                try {
-                    executeAsync(TelegramData.getCallbackQueryAnswer(update));
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-            }).start();
+            if (!update.getCallbackQuery().getData().equals("award_no")) {
+
+                new Thread(() -> {
+                    try {
+                        executeAsync(TelegramData.getCallbackQueryAnswer(update));
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
+
+            }
         } catch (Exception e) {
             log.error("CallBackData: {}", e.getMessage());
         }
