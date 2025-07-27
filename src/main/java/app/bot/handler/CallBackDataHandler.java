@@ -12,6 +12,7 @@ import app.service.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -77,7 +78,9 @@ public class CallBackDataHandler {
                 return;
             }
             case "share" -> {
-                msg.processMessage(Messages.share(chatId, msgId));
+                int i = msg.processMessageReturnMsgId(Messages.share(chatId, -1));
+                msg.processMessage(new PinChatMessage(String.valueOf(chatId), i));
+
                 activationService.save(new Activation(chatId, System.currentTimeMillis(), 1));
                 return;
             }
