@@ -51,7 +51,8 @@ public class Messages {
                 .replace("{l}", userData.getOrDefault("l", "0"))
                 .replace("{l1}", userData.getOrDefault("l1", "0"))
                 .replace("{l2}", userData.getOrDefault("l2", "0"));
-        return TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
     }
 
     public static Object share(Long chatId, int msgId) {
@@ -68,8 +69,7 @@ public class Messages {
                 Баллы сохраняются, а призовой каталог будет расширяться. Делитесь ссылкой и собирайте их заранее! 🔗
                 {link}
                 """.replace("{link}", link);
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, null)
-                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
+        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKbNewMessage());
     }
 
     public static Object spendBolls(Long chatId, int msgId, Map<String, String> m) {
@@ -80,17 +80,18 @@ public class Messages {
                 Каталог призов будет расширяться. Копите баллы, чтобы первыми получать новые возможности!
                 """;
         long b = Long.parseLong(m.getOrDefault("b", "0"));
-        return TelegramData.getEditMessage(chatId, text, Keyboards.award(b), msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.award(b)) :
+                TelegramData.getEditMessage(chatId, text, Keyboards.award(b), msgId);
     }
 
     public static Object newUser(Update update, Long chatId, Long ref, int count) {
         String text = """
-        Новый приглашенный пользователь:
-        userName: {un}
-        chatId: {id}
-        
-        Пользователь пригласил всего (за 24 часа) = {count} друзей
-        """     .replace("{un}", UpdateNameExtractor.usernameAndFullName(update))
+                Новый приглашенный пользователь:
+                userName: {un}
+                chatId: {id}
+                
+                Пользователь пригласил всего (за 24 часа) = {count} друзей
+                """.replace("{un}", UpdateNameExtractor.usernameAndFullName(update))
                 .replace("{id}", String.valueOf(ref))
                 .replace("{rid}", String.valueOf(ref))
                 .replace("{count}", String.valueOf(count));

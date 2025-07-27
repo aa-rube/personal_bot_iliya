@@ -77,7 +77,7 @@ public class CallBackDataHandler {
                 msg.processMessage(Messages.myBolls(chatId, msgId, m));
                 return;
             }
-            case "share" -> {
+            case "share", "share_" -> {
                 int i = msg.processMessageReturnMsgId(Messages.share(chatId, -1));
                 msg.processMessage(new PinChatMessage(String.valueOf(chatId), i));
 
@@ -89,6 +89,18 @@ public class CallBackDataHandler {
                 msg.processMessage(Messages.spendBolls(chatId, msgId, m));
                 return;
             }
+            case "my_bolls_" -> {
+                Map<String, String> m = referralService.getUsrLevel(chatId);
+                msg.processMessage(Messages.myBolls(chatId, -1, m));
+                return;
+            }
+            case "spend_bolls_" -> {
+                Map<String, String> m = referralService.getUsrLevel(chatId);
+                msg.processMessage(Messages.spendBolls(chatId, -1, m));
+                return;
+            }
+
+
             case "award_yes" -> {
                 msg.processMessage(Messages.requestAward(chatId, msgId));
                 msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));

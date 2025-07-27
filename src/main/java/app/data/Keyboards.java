@@ -87,4 +87,11 @@ public class Keyboards {
                 }
         );
     }
+
+    public static InlineKeyboardMarkup mainKbNewMessage() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{"\uD83C\uDF81 Мои баллы", "\uD83D\uDC65 Пригласить друзей", "\uD83D\uDECD Потратить баллы"},
+                new String[]{"my_bolls_", "share_", "spend_bolls_"}
+        );
+    }
 }
