@@ -16,7 +16,6 @@ import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -65,8 +64,8 @@ public class CallBackDataHandler {
             case "subscribe_chek" -> {
                 if (!subscribe.hasNotSubscription(msg, update, chatId, msgId, true)) {
                     activationService.save(new Activation(chatId, System.currentTimeMillis(), 0));
-                    return;
                 }
+                return;
             }
             case "main_menu" -> {
                 msg.processMessage(Messages.mainMenu(chatId, msgId));
@@ -99,8 +98,6 @@ public class CallBackDataHandler {
                 msg.processMessage(Messages.spendBolls(chatId, -1, m));
                 return;
             }
-
-
             case "award_yes" -> {
                 msg.processMessage(Messages.requestAward(chatId, msgId));
                 msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
