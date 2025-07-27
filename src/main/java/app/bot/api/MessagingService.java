@@ -49,7 +49,7 @@ public class MessagingService {
     }
 
     public ChatMember getChatMember(GetChatMember member) {
-        log.info("Получаем информацию о участнике чата: {}", member.getChatId());
+        log.info("Получаем информацию об участнике {} в чате: {}", member.getUserId(), member.getChatId());
         try {
             return bot.execute(member);
         } catch (TelegramApiException telegramApiException) {
