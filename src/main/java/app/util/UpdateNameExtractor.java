@@ -79,7 +79,7 @@ public class UpdateNameExtractor {
         if (first.isEmpty() && last.isEmpty()) {
             return "";
         }
-        return last.isEmpty() ? first : first + ", " + last;
+        return last.isEmpty() ? first : first + " " + last;
     }
 
     public static String extractGroupTitleName(Update update) {
