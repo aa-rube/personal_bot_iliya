@@ -82,7 +82,7 @@ public class CallBackDataHandler {
                 return;
             }
             case "spend_bolls" -> {
-                Map<String, String> m = new HashMap<>();
+                Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.spendBolls(chatId, msgId, m));
                 return;
             }
