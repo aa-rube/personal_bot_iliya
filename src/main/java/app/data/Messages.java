@@ -213,7 +213,8 @@ public class Messages {
 
     public static Object popAward(String callBackQueryId, Map<String, String> m) {
         String s = """
-                Для бесплатной консультации нужно 100 баллов, у вас сейчас {b}." +
+                Для бесплатной консультации нужно 100 баллов, у вас сейчас {b}.
+                
                 Можно продолжить приглашать друзей или выбрать платную консультацию по ссылке ниже
                 """
                 .replace("{b}", m.getOrDefault("b", "0"));
