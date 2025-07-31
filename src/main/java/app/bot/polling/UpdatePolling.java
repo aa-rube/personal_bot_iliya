@@ -35,13 +35,13 @@ public class UpdatePolling extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         log.info("update: {}", update);
 
-        if (update.hasCallbackQuery()) {
-            callBackData(update);
-        } else if (update.hasMessage() && update.getMessage().hasText()) {
+        if (update.hasMessage() && update.getMessage().getLeftChatMember() != null) {
             try {
-                new Thread(() -> textMsgHandler.updateHandler(update)).start();
-            } catch (Exception e) {
-                log.error("Text: {}", e.getMessage());
+                execute(new DeleteMessage(String.valueOf(update.getMessage().getChatId()),
+                        update.getMessage().getMessageId()));
+                return;
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
             }
         }
 
@@ -50,17 +50,19 @@ public class UpdatePolling extends TelegramLongPollingBot {
                 && !update.getMessage().getNewChatMembers().isEmpty()) {
             try {
                 new Thread(() -> textMsgHandler.newMembers(update, update.getMessage().getNewChatMembers())).start();
+                return;
             } catch (Exception e) {
                 log.error("New member: {}", e.getMessage());
             }
         }
 
-        if (update.hasMessage() && update.getMessage().getLeftChatMember() != null) {
+        if (update.hasCallbackQuery()) {
+            callBackData(update);
+        } else if (update.hasMessage() && update.getMessage().hasText()) {
             try {
-                execute(new DeleteMessage(String.valueOf(update.getMessage().getChatId()),
-                        update.getMessage().getMessageId()));
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                new Thread(() -> textMsgHandler.updateHandler(update)).start();
+            } catch (Exception e) {
+                log.error("Text: {}", e.getMessage());
             }
         }
     }
