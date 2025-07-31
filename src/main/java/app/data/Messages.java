@@ -76,7 +76,7 @@ public class Messages {
                 : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
     }
 
-    public static Object share(Long chatId, int msgId) {
+    public static Object share(Long chatId, int msgId, Map<String, String> m) {
         String link = "https://t.me/UstanovkaChatGPTbot?start=" + chatId;
         String text = """
                 Твоя жизнь уже стала проще и эффективнее с нейросетями?
@@ -90,7 +90,8 @@ public class Messages {
                 Баллы сохраняются, а призовой каталог будет расширяться. Делитесь ссылкой и собирайте их заранее! 🔗
                 {link}
                 """.replace("{link}", link);
-        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKbNewMessage());
+        long b = Long.parseLong(m.getOrDefault("b", "0"));
+        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKbNewMessage(b));
     }
 
     public static Object spendBolls(Long chatId, int msgId, Map<String, String> m) {
@@ -137,7 +138,8 @@ public class Messages {
                 ✅ Заявка на «1-часовую консультацию» принята!
                 Мы свяжемся с вами, чтобы выбрать удобное время.
                 """;
-        return TelegramData.getEditMessage(chatId, text, null, msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, null) :
+                TelegramData.getEditMessage(chatId, text, null, msgId);
     }
 
     public static Object uniqueLink(Long chatId, int msgId, Map<String, String> m) {

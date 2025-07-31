@@ -98,10 +98,20 @@ public class Keyboards {
         );
     }
 
-    public static InlineKeyboardMarkup mainKbNewMessage() {
+    public static InlineKeyboardMarkup mainKbNewMessage(Long b) {
         return TelegramData.createInlineKeyboardColumn(
-                new String[]{"\uD83C\uDF81 Мои баллы", "\uD83D\uDC65 Пригласить друзей", "\uD83D\uDECD Потратить баллы"},
-                new String[]{"my_bolls_", "share_", "spend_bolls_"}
+                new String[]{
+                        "\uD83C\uDF81 Мои баллы",
+                        "\uD83D\uDC65 Пригласить друзей",
+                        "\uD83D\uDECD Потратить баллы",
+                        "\uD83D\uDCC5 Бесплатная {b}/100".replace("{b}", String.valueOf(b))
+                },
+                new String[]{
+                        "my_bolls_",
+                        "share_",
+                        "spend_bolls_",
+                        "award_" + (b < 100 ? "no_" : "yes_")
+                }
         );
     }
 }

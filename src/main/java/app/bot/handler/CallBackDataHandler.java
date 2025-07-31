@@ -69,49 +69,67 @@ public class CallBackDataHandler {
                 }
                 return;
             }
+
             case "main_menu" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 boolean pc = subscribe.checkUserPartner(chatId, -1002317608626L);
                 msg.processMessage(Messages.mainMenu(chatId, msgId, pc, m));
                 return;
             }
+
             case "my_bolls" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.myBolls(chatId, msgId, m));
                 return;
             }
+
             case "share", "share_" -> {
-                int i = msg.processMessageReturnMsgId(Messages.share(chatId, -1));
+                Map<String, String> m = referralService.getUsrLevel(chatId);
+
+                int i = msg.processMessageReturnMsgId(Messages.share(chatId, -1, m));
                 msg.processMessage(new PinChatMessage(String.valueOf(chatId), i));
 
                 activationService.save(new Activation(chatId, System.currentTimeMillis(), 1));
                 return;
             }
+
             case "spend_bolls" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.spendBolls(chatId, msgId, m));
                 return;
             }
+
             case "my_bolls_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.myBolls(chatId, -1, m));
                 return;
             }
+
             case "spend_bolls_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.spendBolls(chatId, -1, m));
                 return;
             }
+
             case "award_yes" -> {
                 msg.processMessage(Messages.requestAward(chatId, msgId));
                 msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
                 requestService.save(chatId);
                 return;
             }
-            case "award_no" -> {
+
+            case "award_no", "award_no_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.processMessage(Messages.popAward(update.getCallbackQuery().getId(), m));
             }
+
+            case "award_yes_" -> {
+                msg.processMessage(Messages.requestAward(chatId, -1));
+                msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
+                requestService.save(chatId);
+                return;
+            }
+
             case "watch_welcome_msg" -> {
                 if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
                     Object o = autoMessageService.getAutoMsg(chatId, null, null);
