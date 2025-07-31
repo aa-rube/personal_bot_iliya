@@ -31,6 +31,10 @@ public class CheckSubscribeToChannel {
     }
 
     public boolean hasNotSubscription(Update update, Long chatId, int msgId, boolean subscribeChek) {
+        if (chatId.equals(-1001317414667L)
+                || chatId.equals(-1002317608626L)
+                || chatId.equals(-1002830565740L)) return true;
+
         Map<Partner, Boolean> results = checkList(chatId, partners.findAll());
 
         if (!results.containsValue(false)) {
