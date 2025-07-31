@@ -1,6 +1,6 @@
 package app.data;
 
-import app.bot.api.CheckSubscribeToChannel;
+
 import app.bot.telegramdata.TelegramData;
 import app.model.Partner;
 import app.util.LinkWrapper;

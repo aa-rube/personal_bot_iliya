@@ -177,7 +177,7 @@ public class UserService {
     }
 
     private boolean checkSubscription(Long chatId) {
-        Map<Partner, Boolean> results = checkSubscribeToChannel.checkList(msg, chatId, partnerList);
+        Map<Partner, Boolean> results = checkSubscribeToChannel.checkList(chatId, partnerList);
         return !results.containsValue(false);
     }
 
