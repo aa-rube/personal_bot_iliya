@@ -10,17 +10,23 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ActivationService {
 
     private final ActivationRepository activationRepository;
     private final MessagingService msg;
+    private final ReferralService referralService;
 
     public ActivationService(@Lazy MessagingService msg,
-                             ActivationRepository activationRepository) {
+                             ActivationRepository activationRepository,
+                             ReferralService referralService
+
+    ) {
         this.activationRepository = activationRepository;
         this.msg = msg;
+        this.referralService = referralService;
     }
 
     public void save(Activation activation) {
@@ -34,8 +40,10 @@ public class ActivationService {
         List<Activation> outdated = activationRepository.findAllByStepAndTimestampLessThan(0, timeAgo);
         outdated.forEach(a -> {
             int s = a.stepByStep(0);
+
             if (s == 0) {
-                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                Map<String, String> m = referralService.getUsrLevel(a.getUserId());
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1, m));
                 msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
@@ -46,7 +54,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(1);
             if (s == 1) {
-                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                Map<String, String> m = referralService.getUsrLevel(a.getUserId());
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1, m));
                 msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
@@ -57,7 +66,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(2);
             if (s == 2) {
-                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                Map<String, String> m = referralService.getUsrLevel(a.getUserId());
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1, m));
                 msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
@@ -68,7 +78,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(3);
             if (s == 3) {
-                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                Map<String, String> m = referralService.getUsrLevel(a.getUserId());
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1, m));
                 msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
                 save(a);
             }
@@ -79,7 +90,8 @@ public class ActivationService {
         outdated.forEach(a -> {
             int s = a.stepByStep(4);
             if (s == 4) {
-                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1));
+                Map<String, String> m = referralService.getUsrLevel(a.getUserId());
+                int i = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), -1, m));
                 msg.processMessage(new PinChatMessage(String.valueOf(a.getUserId()), i));
             }
             deleteByUserId(a.getUserId());
