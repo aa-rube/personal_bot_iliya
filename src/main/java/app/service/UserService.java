@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -29,7 +30,7 @@ public class UserService {
     private final AppConfig appConfig;
     private final MessagingService msg;
     private final PartnersRepository partners;
-    private final UserRepository userRepository;
+    private final UserRepository repo;
     private final CheckSubscribeToChannel checkSubscribeToChannel;
 
     private List<Partner> partnerList = new ArrayList<>();
@@ -43,16 +44,44 @@ public class UserService {
         this.appConfig = appConfig;
         this.partners = partners;
         this.msg = msg;
-        this.userRepository = userRepository;
+        this.repo = userRepository;
         this.checkSubscribeToChannel = checkSubscribeToChannel;
     }
 
     public void saveUser(Update update, Long chatId, Long ref) {
-        userRepository.save(new User(update, chatId, ref));
+        repo.save(new User(update, chatId, ref));
     }
 
+    public long saveNewUtmUser(String text) {
+        Optional<User> optionalUser = repo.findFirstByChatIdLessThanOrderByChatIdDesc(1000L);
+        long id = 0L;
+
+        if (optionalUser.isPresent()) {
+             id = optionalUser.get().getChatId() + 1;
+        }
+        return repo.save(new User(id, text)).getChatId();
+    }
+
+    public List<User> findAllUtmUsers() {
+        return repo.findByChatIdBetweenOrderByChatIdAsc(-1L, 1000L);
+    }
+
+//    private Long getLastTechnicalUserId() {
+//        return repo.findAll().stream()
+//                .map(User::getChatId)
+//                .filter(chatId -> chatId >= 0 && chatId <= 1000)
+//                .max(Long::compare)
+//                .orElse(null);
+//    }
+//
+//    public List<User> findAllUtmUsers() {
+//        return repo.findAll().stream()
+//                .filter(u -> u.getChatId() > 0 && u.getChatId() <= 1000)
+//                .toList();
+//    }
+
     public boolean existsById(Long chatId) {
-        return userRepository.existsById(chatId);
+        return repo.existsById(chatId);
     }
 
     @Scheduled(fixedDelay = 600000)
@@ -83,7 +112,7 @@ public class UserService {
     }
 
     private void processActiveUsers(long threeHoursAgo, long now) {
-        List<User> activeUsers = userRepository.findActiveUsersForSubscriptionCheck(threeHoursAgo);
+        List<User> activeUsers = repo.findActiveUsersForSubscriptionCheck(threeHoursAgo);
         log.info("Найдено {} активных пользователей для проверки", activeUsers.size());
 
         for (User user : activeUsers) {
@@ -101,7 +130,7 @@ public class UserService {
     }
 
     private void processInactiveUsers(long fortyEightHoursAgo, long now) {
-        List<User> inactiveUsers = userRepository.findInactiveUsersForKickCheck(fortyEightHoursAgo);
+        List<User> inactiveUsers = repo.findInactiveUsersForKickCheck(fortyEightHoursAgo);
         log.info("Найдено {} неактивных пользователей для исключения", inactiveUsers.size());
 
         for (User user : inactiveUsers) {
@@ -118,7 +147,7 @@ public class UserService {
                 user.setLastSubscribeChecked(now);
             }
 
-            userRepository.save(user);
+            repo.save(user);
             Sleep.sleepSafely(3000);
         }
     }
@@ -131,7 +160,6 @@ public class UserService {
     private void updateUserStatus(User user, boolean isActive, long timestamp) {
         user.setActive(isActive);
         user.setLastSubscribeChecked(timestamp);
-        userRepository.save(user);
+        repo.save(user);
     }
-
 }

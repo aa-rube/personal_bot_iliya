@@ -45,9 +45,9 @@ public class Messages {
                 • 👥 Пригласить друзей — получить персональную ссылку и заработать баллы.
                 
                 • 🛍 Потратить баллы — увидеть доступные призы.
-
+                
                 • 📅 Бесплатная консультация {b}/100 — оставить заявку, когда накопится 100 баллов.
-
+                
                 • 💬 Платная консультация — сразу написать автору.
                 """
                 .replace("{b}", String.valueOf(b));
@@ -243,17 +243,47 @@ public class Messages {
 
 
     //admins message
-
-    public static Object adminPanel(Long chatId) {
+    public static Object adminPanel(Long chatId, int msgId) {
         String s = "Меню администратора:";
-
-        return TelegramData.getSendMessage(chatId, s, Keyboards.adminPanel());
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, s, Keyboards.adminPanel())
+                : TelegramData.getEditMessage(chatId, s, Keyboards.adminPanel(), msgId);
     }
 
-
-    public static Object editWelcomeMessage(Long chatId) {
+    public static Object startEditWelcomeMessage(Long chatId, int msgId) {
         String s = "Редактирование приветственного сообщения:";
-        return TelegramData.getSendMessage(chatId, s, Keyboards.editWelcomeMessage());
+        return TelegramData.getEditMessage(chatId, s, Keyboards.editWelcomeMessage(), msgId);
     }
 
+    public static Object welcomeMessageSaved(Long chatId) {
+        return TelegramData.getSendMessage(chatId, "Сообщение сохранено!", Keyboards.welcomeMessageSaved());
+    }
+
+    public static Object inputNewTextForWelcomeMsg(Long chatId, int msId) {
+        return TelegramData.getSendMessage(chatId,
+                "Введите текст нового сообщение для приветствия. \n\nМожно использовать все типы форматирования телеграм кроме премиум emoji",
+                Keyboards.cancelInputNewWelcomeText());
+    }
+
+    public static Object startEditUtm(Long chatId, int msgId) {
+        return msgId < 0 ?
+                TelegramData.getSendMessage(chatId, "Редактирование UTM-меток", Keyboards.startEditUtm()) :
+                TelegramData.getEditMessage(chatId, "Редактирование UTM-меток", Keyboards.startEditUtm(), msgId);
+    }
+
+    public static Object addUtm(Long chatId, int msgId) {
+        return TelegramData.getEditMessage(chatId, "Введите описание для новой utm-метки",
+                Keyboards.cancelAddNewUtm(), msgId);
+    }
+
+    public static Object utmSaved(Long chatId, long newId) {
+        return TelegramData.getSendMessage(chatId,
+                String.format("Новая utm %d сохранена!", newId),
+                Keyboards.utmSaved());
+    }
+
+    public static Object listUtm(Long chatId, StringBuffer b) {
+        return TelegramData.getSendMessage(chatId,
+                b.toString(),
+                null);
+    }
 }

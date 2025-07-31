@@ -5,15 +5,18 @@ import app.bot.api.MessagingService;
 import app.data.Messages;
 import app.config.AppConfig;
 import app.model.Activation;
+import app.model.User;
 import app.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -27,7 +30,7 @@ public class CallBackDataHandler {
     private final BuildAutoMessageService autoMessageService;
     private final RequestService requestService;
     private final StateManager stateManager;
-
+    private final UserService userService;
 
     public CallBackDataHandler(@Lazy MessagingService msg,
                                AppConfig appConfig,
@@ -36,7 +39,7 @@ public class CallBackDataHandler {
                                ActivationService activationService,
                                BuildAutoMessageService autoMessageService,
                                RequestService requestService,
-                               StateManager stateManager
+                               StateManager stateManager, UserService userService
     ) {
         this.appConfig = appConfig;
         this.msg = msg;
@@ -46,6 +49,7 @@ public class CallBackDataHandler {
         this.autoMessageService = autoMessageService;
         this.requestService = requestService;
         this.stateManager = stateManager;
+        this.userService = userService;
     }
 
     public void updateHandler(Update update) {
@@ -73,6 +77,11 @@ public class CallBackDataHandler {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
                 msg.processMessage(Messages.mainMenu(chatId, msgId, pc, m));
+                return;
+            }
+
+            case "admin_menu" -> {
+                msg.processMessage(Messages.adminPanel(chatId, msgId));
                 return;
             }
 
@@ -122,16 +131,40 @@ public class CallBackDataHandler {
                 return;
             }
 
+            case "start_welcome_msg" -> {
+                msg.processMessage(Messages.startEditWelcomeMessage(chatId, msgId));
+            }
+
             case "edit_welcome_msg" -> {
-                msg.processMessage(new SendMessage(String.valueOf(chatId),
-                                """
-                                        Введите текст нового сообщение для приветствия.
-                                        
-                                        Можно использовать все типы форматирования телеграм кроме премиум emoji
-                                        """
-                        )
+                msg.processMessage(Messages.inputNewTextForWelcomeMsg(chatId, msgId));
+                stateManager.setStatus(chatId, "edit_welcome_message");
+            }
+
+            case "start_utm" -> {
+                msg.processMessage(Messages.startEditUtm(chatId, msgId));
+                return;
+            }
+
+            case "add_utm" -> {
+                msg.processMessage(Messages.addUtm(chatId, msgId));
+                stateManager.setStatus(chatId, data);
+                return;
+            }
+
+            case "list_utm" -> {
+                String bun = appConfig.getUsername().split("@")[1];
+                AtomicInteger i = new AtomicInteger(1);
+
+                StringBuffer b = new StringBuffer().append("Список UTM:\n");
+                userService.findAllUtmUsers().forEach(u ->
+                        b.append(i.getAndAdd(1)).append(". <code>")
+                        .append("https://t.me/").append(bun).append("?start=")
+                        .append(u.getChatId()).append("</code>, ").append(u.getFullName()).append("\n\n")
                 );
-                stateManager.statusIs(chatId, "edit_welcome_message");
+
+                msg.processMessage(Messages.listUtm(chatId, b));
+                msg.processMessage(Messages.startEditUtm(chatId, -1));
+                return;
             }
         }
 
@@ -154,5 +187,7 @@ public class CallBackDataHandler {
                 }
             }
         }
+
     }
+
 }

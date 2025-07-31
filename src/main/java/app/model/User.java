@@ -47,4 +47,9 @@ public class User {
         this.isActive = true;
         this.isKickUserFromChat = false;
     }
+
+    public User(long id, String text) {
+        this.chatId = id;
+        this.fullName = text;
+    }
 }

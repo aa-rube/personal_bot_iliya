@@ -104,13 +104,8 @@ public class TextMsgHandler {
 
         if (text.equals("/admin")) {
             if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
-                msg.processMessage(Messages.adminPanel(chatId));
+                msg.processMessage(Messages.adminPanel(chatId, -1));
             }
-            return;
-        }
-
-        if (stateManager.statusIs(chatId, "edit_welcome_message")) {
-            autoMessageService.getOrAwaitScheduleMessage(chatId, update.getMessage());
             return;
         }
 
@@ -118,6 +113,18 @@ public class TextMsgHandler {
             msg.processMessage(Messages.adminMsgHelp(update, appConfig.getLogChat()));
             msg.processMessage(new ForwardMessage(String.valueOf(appConfig.getLogChat()), String.valueOf(chatId), msgId));
             activationService.deleteByUserId(chatId);
+        }
+
+        if (stateManager.statusIs(chatId, "edit_welcome_message")) {
+            autoMessageService.getOrAwaitScheduleMessage(chatId, update.getMessage());
+            msg.processMessage(Messages.welcomeMessageSaved(chatId));
+            return;
+        }
+
+        if (stateManager.statusIs(chatId, "add_utm")) {
+            long newUtmId = userService.saveNewUtmUser(text);
+            msg.processMessage(Messages.utmSaved(chatId, newUtmId));
+            return;
         }
     }
 

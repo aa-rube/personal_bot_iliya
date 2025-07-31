@@ -110,12 +110,12 @@ public class Keyboards {
         return TelegramData.createInlineKeyboardColumn(
                 new String[]{
                         "UTM-метки",
-                        "Редактировать сообщение",
+                        "Приветственное сообщение",
                         "⏪ Назад"
                 },
                 new String[]{
-                        "utm",
-                        "edit_welcome_msg",
+                        "start_utm",
+                        "start_welcome_msg",
                         "main_menu"
                 }
         );
@@ -131,7 +131,7 @@ public class Keyboards {
                 new String[]{
                         "watch_welcome_msg",
                         "edit_welcome_msg",
-                        "main_menu"
+                        "admin_menu"
                 }
         );
     }
@@ -146,10 +146,71 @@ public class Keyboards {
                 new String[]{
                         "utm",
                         "edit_welcome_msg",
-                        "main_menu"
+                        "admin_menu"
                 }
         );
     }
 
+
+    public static InlineKeyboardMarkup welcomeMessageSaved() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Просмотреть сообщение",
+                        "⏪ Назад"},
+                new String[]{
+                        "watch_welcome_msg",
+                        "start_welcome_msg"
+                }
+        );
+    }
+
+    public static InlineKeyboardMarkup cancelInputNewWelcomeText() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "start_welcome_msg"
+                }
+        );
+    }
+
+    public static InlineKeyboardMarkup startEditUtm() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Список",
+                        "Добавить UTM",
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "list_utm",
+                        "add_utm",
+                        "admin_menu"
+                }
+        );
+    }
+
+    public static InlineKeyboardMarkup cancelAddNewUtm() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "start_utm"
+                }
+        );
+    }
+
+    public static InlineKeyboardMarkup utmSaved() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Просмотреть спиок",
+                        "⏪ Назад"},
+                new String[]{
+                        "list_utm",
+                        "start_utm"
+                }
+        );
+    }
 
 }
