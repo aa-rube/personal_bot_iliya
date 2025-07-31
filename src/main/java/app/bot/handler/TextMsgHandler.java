@@ -61,14 +61,16 @@ public class TextMsgHandler {
         if (chatId.equals(appConfig.getLogChat())) return;
 
         boolean ue = userService.existsById(chatId);
-        if (subscribe.hasNotSubscription(msg, update, chatId, -1, false)) return;
+        if (subscribe.hasNotSubscription(update, chatId, -1, false)) return;
 
         if (text.equals("/start")) {
             if (!ue) {
                 userService.saveUser(update, chatId, 0L);
             }
 
-            msg.processMessage(Messages.mainMenu(chatId, -1));
+            Map<String, String> m = referralService.getUsrLevel(chatId);
+            boolean pc = subscribe.checkUserPartner(chatId, -1002317608626L);
+            msg.processMessage(Messages.mainMenu(chatId, -1, pc, m));
             return;
         }
 

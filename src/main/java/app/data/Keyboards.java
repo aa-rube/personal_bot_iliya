@@ -33,10 +33,20 @@ public class Keyboards {
         );
     }
 
-    public static InlineKeyboardMarkup mainKb() {
+    public static InlineKeyboardMarkup mainKb(long b) {
         return TelegramData.createInlineKeyboardColumn(
-                new String[]{"\uD83C\uDF81 Мои баллы", "\uD83D\uDC65 Пригласить друзей", "\uD83D\uDECD Потратить баллы"},
-                new String[]{"my_bolls", "share", "spend_bolls"}
+                new String[]{
+                        "\uD83C\uDF81 Мои баллы",
+                        "\uD83D\uDC65 Пригласить друзей",
+                        "\uD83D\uDECD Потратить баллы",
+                        "\uD83D\uDCC5 Бесплатная {b}/100".replace("{b}", String.valueOf(b))
+                },
+                new String[]{
+                        "my_bolls",
+                        "share",
+                        "spend_bolls",
+                        "award_" + (b < 100 ? "no" : "yes")
+                }
         );
     }
 

@@ -3,7 +3,9 @@ package app.bot.api;
 import app.data.Messages;
 import app.model.Partner;
 import app.repository.PartnersRepository;
+import app.service.ReferralService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -17,17 +19,24 @@ import java.util.Map;
 public class CheckSubscribeToChannel {
 
     private final PartnersRepository partners;
+    private final ReferralService referralService;
+    private final MessagingService msg;
 
-    public CheckSubscribeToChannel(PartnersRepository partners) {
+    public CheckSubscribeToChannel(PartnersRepository partners,
+                                   ReferralService referralService,
+                                   @Lazy MessagingService msg) {
         this.partners = partners;
+        this.referralService = referralService;
+        this.msg = msg;
     }
 
-    public boolean hasNotSubscription(MessagingService msg, Update update, Long chatId, int msgId, boolean subscribeChek) {
-        Map<Partner, Boolean> results = check(msg, chatId, partners.findAll());
+    public boolean hasNotSubscription(Update update, Long chatId, int msgId, boolean subscribeChek) {
+        Map<Partner, Boolean> results = checkList(chatId, partners.findAll());
 
         if (!results.containsValue(false)) {
             if (subscribeChek) {
-                msg.processMessage(Messages.uniqueLink(chatId, msgId));
+                Map<String, String> m = referralService.getUsrLevel(chatId);
+                msg.processMessage(Messages.uniqueLink(chatId, msgId, m));
             }
 
             return false;
@@ -37,28 +46,31 @@ public class CheckSubscribeToChannel {
         }
     }
 
-    public Map<Partner, Boolean> check(MessagingService msg, Long chatId, List<Partner> partnersList) {
+    public Map<Partner, Boolean> checkList(Long chatId, List<Partner> partnersList) {
         Map<Partner, Boolean> results = new HashMap<>();
         for (Partner partner : partnersList) {
-            String status;
 
-            try {
-                status = msg.getChatMember(new GetChatMember(String.valueOf(partner.getPartnerTelegramChatId()), chatId)).getStatus();
-            } catch (Exception e) {
-                log.error("The status of the user was not received! ChatId: {} Partner: {}, Exception: {}", chatId, partner.getName(), e.getMessage());
-                break;
-            }
-
-            if (status != null
-                    && !status.equals("null")
-                    && (status.equals("member")
-                    || status.equals("creator")
-                    || status.equals("administrator"))) {
+            boolean r = checkUserPartner(chatId, partner.getPartnerTelegramChatId());
+            if (r) {
                 results.put(partner, true);
             } else {
                 results.put(partner, false);
             }
         }
         return results;
+    }
+
+    public boolean checkUserPartner(Long chatId, Long partner) {
+        String status;
+        try {
+            status = msg.getChatMember(new GetChatMember(String.valueOf(partner), chatId)).getStatus();
+        } catch (Exception e) {
+            return false;
+        }
+        return status != null
+                && !status.equals("null")
+                && (status.equals("member")
+                || status.equals("creator")
+                || status.equals("administrator"));
     }
 }

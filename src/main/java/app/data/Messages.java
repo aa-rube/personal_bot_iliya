@@ -1,5 +1,6 @@
 package app.data;
 
+import app.bot.api.CheckSubscribeToChannel;
 import app.bot.telegramdata.TelegramData;
 import app.model.Partner;
 import app.util.LinkWrapper;
@@ -7,7 +8,6 @@ import app.util.UpdateNameExtractor;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Map;
 
@@ -33,10 +33,30 @@ public class Messages {
         }
     }
 
-    public static Object mainMenu(Long chatId, int msgId) {
-        String text = "Главное меню";
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
-                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
+    public static Object mainMenu(Long chatId, int msgId, boolean pc, Map<String, String> m) {
+        long tc = Long.parseLong(m.getOrDefault("tc", "0"));
+        String text = "{header}Главное меню";
+
+        if (tc > 0 && pc) {
+            text = text.replace("{header}",
+                    "Вы уже в закрытом чате «C GPT на ТЫ» и участвуете в реферальной программе.\n\n");
+        }
+
+        if (pc && tc <= 0) {
+            text = text.replace("{header}",
+                    "Вы уже в закрытом чате «C GPT на ТЫ». Приглашайте друзей в наш чат!\n\n");
+        }
+
+        if (!pc && tc <= 0) {
+            text = text.replace("{header}",
+                    "Вступайте в закрытый чат "
+                            + LinkWrapper.wrapTextInLink("«C GPT на ТЫ»", "https://t.me/+R_7xy_8KZ244Y2Qx")
+                            + ", приглашайте друзей - получайте максимум возможностей!\n\n");
+        }
+
+        long b = Long.parseLong(m.getOrDefault("b", "0"));
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b))
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
     }
 
     public static Object myBolls(Long chatId, int msgId, Map<String, String> userData) {
@@ -51,8 +71,9 @@ public class Messages {
                 .replace("{l}", userData.getOrDefault("l", "0"))
                 .replace("{l1}", userData.getOrDefault("l1", "0"))
                 .replace("{l2}", userData.getOrDefault("l2", "0"));
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
-                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
+        long b = Long.parseLong(userData.getOrDefault("b", "0"));
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b))
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
     }
 
     public static Object share(Long chatId, int msgId) {
@@ -119,15 +140,16 @@ public class Messages {
         return TelegramData.getEditMessage(chatId, text, null, msgId);
     }
 
-    public static Object uniqueLink(Long chatId, int msgId) {
+    public static Object uniqueLink(Long chatId, int msgId, Map<String, String> m) {
         String text = """
                 Отлично! 🎉 Вот ваш пропуск в {link}
                 Внутри ждут подробные инструкции и поддержка сообщества.
                 Если возникнут вопросы — задавайте их в группе «Общий чат».
                 """
                 .replace("{link}", LinkWrapper.wrapTextInLink("закрытый клуб", "https://t.me/+R_7xy_8KZ244Y2Qx"));
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb())
-                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(), msgId);
+        long b = Long.parseLong(m.getOrDefault("b", "0"));
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b))
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
     }
 
     public static Object adminNotificationAward(Long chatId, Long userId, int msgId) {
@@ -189,8 +211,12 @@ public class Messages {
         return banRequest;
     }
 
-    public static Object popAward(String callBackQueryId) {
-        String s = "У вас не достаточно баллов.\nПригласите больше друзей!";
+    public static Object popAward(String callBackQueryId, Map<String, String> m) {
+        String s = """
+                Для бесплатной консультации нужно 100 баллов, у вас сейчас {b}." +
+                Можно продолжить приглашать друзей или выбрать платную консультацию по ссылке ниже
+                """
+                .replace("{b}", m.getOrDefault("b", "0"));
         return TelegramData.getPopupMessage(callBackQueryId, s, false);
     }
 

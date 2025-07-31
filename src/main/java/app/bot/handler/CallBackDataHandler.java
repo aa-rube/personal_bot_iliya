@@ -5,10 +5,8 @@ import app.bot.api.MessagingService;
 import app.data.Messages;
 import app.config.AppConfig;
 import app.model.Activation;
-import app.service.ActivationService;
-import app.service.BuildAutoMessageService;
-import app.service.ReferralService;
-import app.service.StateManager;
+import app.model.Partner;
+import app.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -28,7 +26,9 @@ public class CallBackDataHandler {
     private final CheckSubscribeToChannel subscribe;
     private final ActivationService activationService;
     private final BuildAutoMessageService autoMessageService;
+    private final RequestService requestService;
     private final StateManager stateManager;
+
 
     public CallBackDataHandler(@Lazy MessagingService msg,
                                AppConfig appConfig,
@@ -36,6 +36,7 @@ public class CallBackDataHandler {
                                ReferralService referralService,
                                ActivationService activationService,
                                BuildAutoMessageService autoMessageService,
+                               RequestService requestService,
                                StateManager stateManager
     ) {
         this.appConfig = appConfig;
@@ -44,6 +45,7 @@ public class CallBackDataHandler {
         this.referralService = referralService;
         this.activationService = activationService;
         this.autoMessageService = autoMessageService;
+        this.requestService = requestService;
         this.stateManager = stateManager;
     }
 
@@ -57,18 +59,20 @@ public class CallBackDataHandler {
         stateManager.editWelcomeMessage.remove(chatId);
 
         if (!data.equals("subscribe_chek")) {
-            if (subscribe.hasNotSubscription(msg, update, chatId, msgId, false)) return;
+            if (subscribe.hasNotSubscription(update, chatId, msgId, false)) return;
         }
 
         switch (data) {
             case "subscribe_chek" -> {
-                if (!subscribe.hasNotSubscription(msg, update, chatId, msgId, true)) {
+                if (!subscribe.hasNotSubscription(update, chatId, msgId, true)) {
                     activationService.save(new Activation(chatId, System.currentTimeMillis(), 0));
                 }
                 return;
             }
             case "main_menu" -> {
-                msg.processMessage(Messages.mainMenu(chatId, msgId));
+                Map<String, String> m = referralService.getUsrLevel(chatId);
+                boolean pc = subscribe.checkUserPartner(chatId, -1002317608626L);
+                msg.processMessage(Messages.mainMenu(chatId, msgId, pc, m));
                 return;
             }
             case "my_bolls" -> {
@@ -101,10 +105,12 @@ public class CallBackDataHandler {
             case "award_yes" -> {
                 msg.processMessage(Messages.requestAward(chatId, msgId));
                 msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
+                requestService.save(chatId);
                 return;
             }
             case "award_no" -> {
-                msg.processMessage(Messages.popAward(update.getCallbackQuery().getId()));
+                Map<String, String> m = referralService.getUsrLevel(chatId);
+                msg.processMessage(Messages.popAward(update.getCallbackQuery().getId(), m));
             }
             case "watch_welcome_msg" -> {
                 if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
@@ -142,7 +148,9 @@ public class CallBackDataHandler {
                 }
 
                 case "wait" -> {
-                    msg.processMessage(Messages.mainMenu(chatId, msgId));
+                    Map<String, String> m = referralService.getUsrLevel(chatId);
+                    boolean pc = subscribe.checkUserPartner(chatId, -1002317608626L);
+                    msg.processMessage(Messages.mainMenu(chatId, msgId, pc, m));
                     return;
                 }
             }

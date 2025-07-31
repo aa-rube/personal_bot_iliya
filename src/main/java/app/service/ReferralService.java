@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 public class ReferralService {
 
     private final ReferralRepository repo;
+    private final RequestService requestService;
+
 
     public void updateRefUser(Long r, Long ref) {
         repo.save(new Referral(r, ref));
@@ -52,7 +54,10 @@ public class ReferralService {
         long lvl2Cnt = lvl1Ids.isEmpty() ? 0 : repo.findByReferrerIdIn(lvl1Ids).size();
         long lvl2Pts = lvl2Cnt * 3;
 
-        long totalPts = lvl1Pts + lvl2Pts;
+
+        /* ---------- Учитывает запрошенные и заработанные шары ---------- */
+        long wasted = requestService.getBallsSum(chatId);
+        long totalPts = lvl1Pts + lvl2Pts - wasted;
 
         /* ---------- 4. бейдж по количеству личных приглашений ---------- */
         String label = "Новичок \uD83D\uDC7D";
@@ -68,12 +73,15 @@ public class ReferralService {
             label = "Амбассадор нейросетей \uD83D\uDC51";
         }
 
+        long totalCount = lvl1Cnt + lvl2Cnt;
+
         /* ---------- 5. ответ ---------- */
         return Map.of(
                 "l", label,                // Label
                 "b", String.valueOf(totalPts), // Balls
                 "l1", String.valueOf(lvl1Cnt),
-                "l2", String.valueOf(lvl2Cnt)
+                "l2", String.valueOf(lvl2Cnt),
+                "tc", String.valueOf(totalCount)
         );
     }
 }
