@@ -71,7 +71,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
         try {
             new Thread(() -> callBackDataHandler.updateHandler(update)).start();
 
-            if (!update.getCallbackQuery().getData().equals("award_no")) {
+            if (!update.getCallbackQuery().getData().contains("award_no")) {
 
                 new Thread(() -> {
                     try {
