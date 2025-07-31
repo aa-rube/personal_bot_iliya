@@ -5,6 +5,8 @@ import app.repository.RequestsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class RequestService {
@@ -17,8 +19,9 @@ public class RequestService {
 
     public Long getBallsSum(Long c) {
         try {
-        return repository.sumBollsByChatId(c);
-        } catch (Exception e){
+            Long r = repository.sumBollsByChatId(c);
+            return Objects.requireNonNullElse(r, 0L);
+        } catch (Exception e) {
             return 0L;
         }
     }
