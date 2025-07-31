@@ -35,28 +35,40 @@ public class Messages {
 
     public static Object mainMenu(Long chatId, int msgId, boolean pc, Map<String, String> m) {
         long tc = Long.parseLong(m.getOrDefault("tc", "0"));
-        String text = "{header}Главное меню";
+        long b = Long.parseLong(m.getOrDefault("b", "0"));
+
+        String text = """
+                {header}
+                
+                Вы уже в закрытом чате «C GPT на ТЫ» и участвуете в реферальной программе.
+                
+                • 🎁 Мои баллы — узнать текущий баланс и уровень. \s
+                • 👥 Пригласить друзей — получить персональную ссылку и заработать баллы. \s
+                • 🛍 Потратить баллы — увидеть доступные призы. \s
+                • 📅 Бесплатная консультация {b}/100 — оставить заявку, когда накопится 100 баллов. \s
+                • 💬 Платная консультация — сразу написать автору.
+                """
+                .replace("{b}", String.valueOf(b));
 
         if (tc > 0 && pc) {
             text = text.replace("{header}",
-                    "Вы уже в закрытом чате «C GPT на ТЫ» и участвуете в реферальной программе.\n\n");
+                    "Вы уже в закрытом чате «C GPT на ТЫ» и участвуете в реферальной программе.");
         }
 
         if (pc && tc <= 0) {
             text = text.replace("{header}",
-                    "Вы уже в закрытом чате «C GPT на ТЫ». Приглашайте друзей в наш чат!\n\n");
+                    "Вы уже в закрытом чате «C GPT на ТЫ». Приглашайте друзей в наш чат!");
         }
 
         if (!pc && tc <= 0) {
             text = text.replace("{header}",
                     "Вступайте в закрытый чат "
                             + LinkWrapper.wrapTextInLink("«C GPT на ТЫ»", "https://t.me/+R_7xy_8KZ244Y2Qx")
-                            + ", приглашайте друзей - получайте максимум возможностей!\n\n");
+                            + ", приглашайте друзей - получайте максимум возможностей!");
         }
 
-        long b = Long.parseLong(m.getOrDefault("b", "0"));
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b))
-                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b)) :
+                TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
     }
 
     public static Object myBolls(Long chatId, int msgId, Map<String, String> userData) {
