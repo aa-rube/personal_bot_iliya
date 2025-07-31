@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -122,9 +123,13 @@ public class TextMsgHandler {
 
     public void newMembers(Update update, List<User> newChatMembers) {
         Long chatId = update.getMessage().getChatId();
+        int msgId = update.getMessage().getMessageId();
+
         User u = newChatMembers.getFirst();
         Object wm = autoMessageService.getAutoMsg(chatId, update, u);
         int welcomeMessageId = msg.processMessageReturnMsgId(wm);
         welcome.save(chatId, welcomeMessageId);
+
+        msg.processMessage(new DeleteMessage(String.valueOf(chatId), msgId));
     }
 }
