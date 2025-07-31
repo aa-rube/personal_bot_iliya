@@ -39,13 +39,15 @@ public class Keyboards {
                         "\uD83C\uDF81 Мои баллы",
                         "\uD83D\uDC65 Пригласить друзей",
                         "\uD83D\uDECD Потратить баллы",
-                        "\uD83D\uDCC5 Бесплатная {b}/100".replace("{b}", String.valueOf(b))
+                        "\uD83D\uDCC5 Бесплатная {b}/100".replace("{b}", String.valueOf(b)),
+                        "\uD83D\uDCAC Платная консультация"
                 },
                 new String[]{
                         "my_bolls",
                         "share",
                         "spend_bolls",
-                        "award_" + (b < 100 ? "no" : "yes")
+                        "award_" + (b < 100 ? "no" : "yes"),
+                        "https://t.me/MoneyBaires"
                 }
         );
     }
