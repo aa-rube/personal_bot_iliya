@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -51,6 +52,15 @@ public class UpdatePolling extends TelegramLongPollingBot {
                 new Thread(() -> textMsgHandler.newMembers(update, update.getMessage().getNewChatMembers())).start();
             } catch (Exception e) {
                 log.error("New member: {}", e.getMessage());
+            }
+        }
+
+        if (update.hasMessage() && update.getMessage().getLeftChatMember() != null) {
+            try {
+                execute(new DeleteMessage(String.valueOf(update.getMessage().getChatId()),
+                        update.getMessage().getMessageId()));
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
             }
         }
     }
