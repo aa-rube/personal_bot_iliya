@@ -19,7 +19,7 @@ public class Activation {
     private Integer step;
 
     public int stepByStep(int currentStep) {
-        if (currentStep != step) return -1;
+        if (currentStep != step) return 0;
 
         int s = step;
         this.step = nextStep(s);

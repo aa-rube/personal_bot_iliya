@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ActivationRepository extends MongoRepository<Activation, Long> {
     List<Activation> findAllByStepAndTimestampLessThan(int step, long threeHoursAgo);
+
+    List<Activation> findAllByTimestampLessThan(long timeAgo);
 }

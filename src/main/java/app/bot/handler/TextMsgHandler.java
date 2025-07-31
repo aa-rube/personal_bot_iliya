@@ -70,7 +70,7 @@ public class TextMsgHandler {
             }
 
             Map<String, String> m = referralService.getUsrLevel(chatId);
-            boolean pc = subscribe.checkUserPartner(chatId, -1002317608626L);
+            boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
             msg.processMessage(Messages.mainMenu(chatId, -1, pc, m));
             return;
         }
@@ -109,7 +109,7 @@ public class TextMsgHandler {
             return;
         }
 
-        if (stateManager.editWelcomeMessage.getOrDefault(chatId, "").equals("edit_welcome_message")) {
+        if (stateManager.statusIs(chatId, "edit_welcome_message")) {
             autoMessageService.getOrAwaitScheduleMessage(chatId, update.getMessage());
             return;
         }
@@ -129,7 +129,6 @@ public class TextMsgHandler {
         Object wm = autoMessageService.getAutoMsg(chatId, update, u);
         int welcomeMessageId = msg.processMessageReturnMsgId(wm);
         welcome.save(chatId, welcomeMessageId);
-
         msg.processMessage(new DeleteMessage(String.valueOf(chatId), msgId));
     }
 }

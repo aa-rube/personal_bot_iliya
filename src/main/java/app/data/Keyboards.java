@@ -85,21 +85,6 @@ public class Keyboards {
         return keyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup editWelcomeMessage() {
-        return TelegramData.createInlineKeyboardColumn(
-                new String[]{
-                        "Просмотреть сообщение",
-                        "Редактировать сообщение",
-                        "⏪ Назад"
-                },
-                new String[]{
-                        "watch_welcome_msg",
-                        "edit_welcome_msg",
-                        "main_menu"
-                }
-        );
-    }
-
     public static InlineKeyboardMarkup mainKbNewMessage(Long b) {
         return TelegramData.createInlineKeyboardColumn(
                 new String[]{
@@ -118,4 +103,53 @@ public class Keyboards {
                 }
         );
     }
+
+
+    //admins keyboards
+    public static InlineKeyboardMarkup adminPanel() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "UTM-метки",
+                        "Редактировать сообщение",
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "utm",
+                        "edit_welcome_msg",
+                        "main_menu"
+                }
+        );
+    }
+
+    public static InlineKeyboardMarkup editWelcomeMessage() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Просмотреть сообщение",
+                        "Редактировать сообщение",
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "watch_welcome_msg",
+                        "edit_welcome_msg",
+                        "main_menu"
+                }
+        );
+    }
+
+    public static InlineKeyboardMarkup utmEdit() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Посмотреть список",
+                        "Создать utm-метку",
+                        "⏪ Назад"
+                },
+                new String[]{
+                        "utm",
+                        "edit_welcome_msg",
+                        "main_menu"
+                }
+        );
+    }
+
+
 }

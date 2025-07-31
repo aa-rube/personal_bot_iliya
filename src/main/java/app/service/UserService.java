@@ -2,6 +2,7 @@ package app.service;
 
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
+import app.config.AppConfig;
 import app.data.Messages;
 import app.model.Partner;
 import app.model.User;
@@ -25,6 +26,7 @@ public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
+    private final AppConfig appConfig;
     private final MessagingService msg;
     private final PartnersRepository partners;
     private final UserRepository userRepository;
@@ -33,10 +35,12 @@ public class UserService {
     private List<Partner> partnerList = new ArrayList<>();
     private volatile boolean isRunning = false;
 
-    public UserService(PartnersRepository partners,
+    public UserService(AppConfig appConfig,
+                       PartnersRepository partners,
                        @Lazy MessagingService msg,
                        UserRepository userRepository,
                        CheckSubscribeToChannel checkSubscribeToChannel) {
+        this.appConfig = appConfig;
         this.partners = partners;
         this.msg = msg;
         this.userRepository = userRepository;
@@ -50,63 +54,6 @@ public class UserService {
     public boolean existsById(Long chatId) {
         return userRepository.existsById(chatId);
     }
-
-//    @Scheduled(fixedDelay = 600000) // 10 минут в миллисекундах
-//    public void subscribeChecking() {
-//        if (isRunning) {
-//            log.warn("Проверка подписок уже выполняется, пропускаем");
-//            return;
-//        }
-//
-//        isRunning = true;
-//        try {
-//            log.info("Начинаем проверку подписок пользователей");
-//            this.partnerList = this.partnerList.isEmpty() ? partners.findAll() : this.partnerList;
-//            log.info("Загружено {} партнеров для проверки", partnerList.size());
-//
-//            List<User> users = userRepository.findAll();
-//            log.info("Найдено {} пользователей для проверки (3 часа)", users.size());
-//            users.forEach(user -> {
-//                if (user.isActive() && !user.isKickUserFromChat()) {
-//                    log.info("Проверяем пользователя: {}", user.getChatId());
-//                    boolean hasSubscribe = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
-//                    if (!hasSubscribe) {
-//                        log.warn("Пользователь {} неактивен, отправляем уведомление", user.getChatId());
-//                        msg.processMessage(Messages.leftUser(user.getChatId()));
-//                    }
-//
-//                    user.setActive(hasSubscribe);
-//                    user.setLastSubscribeChecked(System.currentTimeMillis());
-//                    userRepository.save(user);
-//                    Sleep.sleepSafely(3000);
-//                }
-//            });
-//
-//
-//            long timeAgo = System.currentTimeMillis() - (48 * 60 * 60 * 1000);
-//            log.info("Найдено {} пользователей для исключения (48 часов)", users.size());
-//            users.forEach(user -> {
-//                if (!user.isActive() && user.getLastSubscribeChecked() < timeAgo) {
-//
-//                    log.info("Проверяем пользователя для исключения: {}", user.getChatId());
-//                    boolean hasSubscribe = !checkSubscribeToChannel.check(msg, user.getChatId(), partnerList).containsValue(false);
-//                    if (!hasSubscribe) {
-//                        log.warn("Исключаем неактивного пользователя: {}", user.getChatId());
-//                        msg.processMessage(Messages.kickUserFromChat(user.getChatId(), -1002317608626L));
-//                    }
-//
-//                    user.setKickUserFromChat(true);
-//                    user.setLastSubscribeChecked(System.currentTimeMillis() + (1825L * 60L * 60L * 1000L));
-//                    userRepository.save(user);
-//                    Sleep.sleepSafely(3000);
-//                }
-//            });
-//
-//            log.info("Проверка подписок завершена");
-//        } finally {
-//            isRunning = false;
-//        }
-//    }
 
     @Scheduled(fixedDelay = 600000)
     public void subscribeChecking() {
@@ -163,7 +110,7 @@ public class UserService {
 
             if (!isSubscribed) {
                 log.warn("Исключаем пользователя: {}", user.getChatId());
-                msg.processMessage(Messages.kickUserFromChat(user.getChatId(), -1002317608626L));
+                msg.processMessage(Messages.kickUserFromChat(user.getChatId(), appConfig.getBotPrivateChannel()));
                 user.setKickUserFromChat(true);
                 user.setLastSubscribeChecked(now + TimeUnit.DAYS.toMillis(76)); // 76 дней
             } else {

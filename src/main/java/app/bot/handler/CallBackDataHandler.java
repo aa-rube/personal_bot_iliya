@@ -5,7 +5,6 @@ import app.bot.api.MessagingService;
 import app.data.Messages;
 import app.config.AppConfig;
 import app.model.Activation;
-import app.model.Partner;
 import app.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -56,7 +55,7 @@ public class CallBackDataHandler {
 
         log.info("msgId: {}, chatId: {}, data: {}", msgId, chatId, data);
 
-        stateManager.editWelcomeMessage.remove(chatId);
+        stateManager.remove(chatId);
 
         if (!data.equals("subscribe_chek")) {
             if (subscribe.hasNotSubscription(update, chatId, msgId, false)) return;
@@ -72,13 +71,14 @@ public class CallBackDataHandler {
 
             case "main_menu" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
-                boolean pc = subscribe.checkUserPartner(chatId, -1002317608626L);
+                boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
                 msg.processMessage(Messages.mainMenu(chatId, msgId, pc, m));
                 return;
             }
 
-            case "my_bolls" -> {
+            case "my_bolls", "my_bolls_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
+                msgId = data.contains("s_") ? -1 : msgId;
                 msg.processMessage(Messages.myBolls(chatId, msgId, m));
                 return;
             }
@@ -93,26 +93,17 @@ public class CallBackDataHandler {
                 return;
             }
 
-            case "spend_bolls" -> {
+            case "spend_bolls", "spend_bolls_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
+                msgId = data.contains("s_") ? -1 : msgId;
                 msg.processMessage(Messages.spendBolls(chatId, msgId, m));
                 return;
             }
 
-            case "my_bolls_" -> {
-                Map<String, String> m = referralService.getUsrLevel(chatId);
-                msg.processMessage(Messages.myBolls(chatId, -1, m));
-                return;
-            }
-
-            case "spend_bolls_" -> {
-                Map<String, String> m = referralService.getUsrLevel(chatId);
-                msg.processMessage(Messages.spendBolls(chatId, -1, m));
-                return;
-            }
-
-            case "award_yes" -> {
+            case "award_yes", "award_yes_" -> {
+                msgId = data.contains("s_") ? -1 : msgId;
                 msg.processMessage(Messages.requestAward(chatId, msgId));
+
                 msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
                 requestService.save(chatId);
                 return;
@@ -123,53 +114,43 @@ public class CallBackDataHandler {
                 msg.processMessage(Messages.popAward(update.getCallbackQuery().getId(), m));
             }
 
-            case "award_yes_" -> {
-                msg.processMessage(Messages.requestAward(chatId, -1));
-                msg.processMessage(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
-                requestService.save(chatId);
-                return;
-            }
-
             case "watch_welcome_msg" -> {
-                if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
-                    Object o = autoMessageService.getAutoMsg(chatId, null, null);
-                    o = o == null ? Messages.emptyWelcome(chatId) : o;
-                    msg.processMessage(o);
-                }
+                Object o = autoMessageService.getAutoMsg(chatId, null, null);
+                o = o == null ? Messages.emptyWelcome(chatId) : o;
+                msg.processMessage(o);
 
                 return;
             }
+
             case "edit_welcome_msg" -> {
-                if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
-                    msg.processMessage(new SendMessage(String.valueOf(chatId),
-                            """
-                                    Введите текст нового сообщение для приветствия.
-                                    
-                                    Можно использовать все типы форматирования телеграм кроме премиум emoji
-                                    """
-                    ));
-                    stateManager.editWelcomeMessage.put(chatId, "edit_welcome_message");
-                }
+                msg.processMessage(new SendMessage(String.valueOf(chatId),
+                                """
+                                        Введите текст нового сообщение для приветствия.
+                                        
+                                        Можно использовать все типы форматирования телеграм кроме премиум emoji
+                                        """
+                        )
+                );
+                stateManager.statusIs(chatId, "edit_welcome_message");
             }
         }
 
         if (data.startsWith("areYouOk?")) {
             String command = data.split("\\?")[1];
+
             switch (command) {
                 case "yes" -> {
                     msg.processMessage(Messages.yes(chatId, msgId));
-                    activationService.deleteByUserId(chatId);
+                    Activation a = activationService.getActivation(chatId);
+                    a.setStep(1);
                 }
 
-                case "help" -> {
-                    msg.processMessage(Messages.userMsgHelp(chatId));
-                }
+                case "help" -> msg.processMessage(Messages.userMsgHelp(chatId));
 
                 case "wait" -> {
                     Map<String, String> m = referralService.getUsrLevel(chatId);
-                    boolean pc = subscribe.checkUserPartner(chatId, -1002317608626L);
+                    boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
                     msg.processMessage(Messages.mainMenu(chatId, msgId, pc, m));
-                    return;
                 }
             }
         }
