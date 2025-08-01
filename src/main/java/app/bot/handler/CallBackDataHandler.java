@@ -180,7 +180,7 @@ public class CallBackDataHandler {
 
                 case "help" -> {
                     msg.processMessage(Messages.userMsgHelp(chatId));
-                    msg.processMessage(Messages.adminMsgHelp(update, chatId));
+                    msg.processMessage(Messages.adminMsgHelp(update, appConfig.getLogChat()));
                 }
 
                 case "wait" -> {

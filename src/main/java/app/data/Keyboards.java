@@ -82,6 +82,7 @@ public class Keyboards {
         row1.add(contactButton);
         keyboard.add(row1);
         keyboardMarkup.setKeyboard(keyboard);
+        keyboardMarkup.setResizeKeyboard(true);
         return keyboardMarkup;
     }
 
