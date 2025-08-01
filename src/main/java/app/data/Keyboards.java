@@ -77,7 +77,7 @@ public class Keyboards {
         List<KeyboardRow> keyboard = new ArrayList<>();
         KeyboardRow row1 = new KeyboardRow();
 
-        KeyboardButton contactButton = new KeyboardButton("Поделиться контактом");
+        KeyboardButton contactButton = new KeyboardButton("Личная консультация");
         contactButton.setRequestContact(true);
         row1.add(contactButton);
         keyboard.add(row1);

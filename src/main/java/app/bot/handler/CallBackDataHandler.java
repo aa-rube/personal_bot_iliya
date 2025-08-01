@@ -178,7 +178,10 @@ public class CallBackDataHandler {
                     a.setStep(1);
                 }
 
-                case "help" -> msg.processMessage(Messages.userMsgHelp(chatId));
+                case "help" -> {
+                    msg.processMessage(Messages.userMsgHelp(chatId));
+                    msg.processMessage(Messages.adminMsgHelp(update, chatId));
+                }
 
                 case "wait" -> {
                     Map<String, String> m = referralService.getUsrLevel(chatId);

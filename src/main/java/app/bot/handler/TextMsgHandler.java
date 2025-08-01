@@ -67,6 +67,10 @@ public class TextMsgHandler {
             userService.subscribeChecking();
             return;
         }
+        if (text.equals("/trigger2")) {
+            msg.processMessage(Messages.areYouOk(chatId));
+            return;
+        }
 
         boolean ue = userService.existsById(chatId);
         if (subscribe.hasNotSubscription(update, chatId, -1, false)) return;
