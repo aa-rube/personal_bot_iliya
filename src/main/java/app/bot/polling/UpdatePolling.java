@@ -33,7 +33,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        log.info("update: {}", update);
+        log.debug("update: {}", update);
 
         if (update.hasMessage() && update.getMessage().getLeftChatMember() != null) {
             try {
