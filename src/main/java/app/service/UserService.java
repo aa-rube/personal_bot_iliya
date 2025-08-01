@@ -102,7 +102,7 @@ public class UserService {
 
     private void processActiveUsers(List<Partner> partnerList, List<User> users, long threeHoursAgo, long now) {
         for (User user : users) {
-            if (threeHoursAgo > user.getLastSubscribeChecked()) {
+            if (user.isActive() && threeHoursAgo > user.getLastSubscribeChecked()) {
 
                 log.info("Проверяем пользователя: {}", user.getChatId());
                 Map<Partner, Boolean> result = checkSubscription(user.getChatId(), partnerList);
@@ -113,7 +113,7 @@ public class UserService {
                     msg.processMessage(Messages.leftUser(user.getChatId(), result));
                 }
 
-                user.setActive(notActive);
+                user.setActive(false);
                 user.setLastSubscribeChecked(now);
                 repo.save(user);
 
