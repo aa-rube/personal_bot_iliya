@@ -30,6 +30,7 @@ public class TextMsgHandler {
     private final BuildAutoMessageService autoMessageService;
     private final WelcomeMessageService welcome;
     private final StateManager stateManager;
+    private final UtmVisitService utmVisitService;
 
     public TextMsgHandler(AppConfig appConfig,
                           CheckSubscribeToChannel subscribe,
@@ -39,7 +40,7 @@ public class TextMsgHandler {
                           @Lazy MessagingService msg,
                           BuildAutoMessageService autoMessageService,
                           WelcomeMessageService welcome,
-                          StateManager stateManager
+                          StateManager stateManager, UtmVisitService utmVisitService
     ) {
         this.msg = msg;
         this.appConfig = appConfig;
@@ -50,6 +51,7 @@ public class TextMsgHandler {
         this.autoMessageService = autoMessageService;
         this.welcome = welcome;
         this.stateManager = stateManager;
+        this.utmVisitService = utmVisitService;
     }
 
 
@@ -77,8 +79,13 @@ public class TextMsgHandler {
 
         if (text.contains("/start ")) {
             try {
+                Long ref = ExtractReferralIdFromStartCommand.extract(text);
+                if (ref < 1000 && ref > 0) {
+                    utmVisitService.save(ref, chatId);
+                    return;
+                }
+
                 if (!ue) {
-                    Long ref = ExtractReferralIdFromStartCommand.extract(text);
                     int c = referralService.updateRefUserWithCount(chatId, ref);
 
                     userService.saveUser(update, chatId, ref);
