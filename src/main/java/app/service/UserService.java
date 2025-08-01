@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,13 +27,10 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final AppConfig appConfig;
+    private final UserRepository repo;
     private final MessagingService msg;
     private final PartnersRepository partners;
-    private final UserRepository repo;
     private final CheckSubscribeToChannel checkSubscribeToChannel;
-
-    private List<Partner> partnerList = new ArrayList<>();
-    private volatile boolean isRunning = false;
 
     public UserService(AppConfig appConfig,
                        PartnersRepository partners,
@@ -47,6 +43,8 @@ public class UserService {
         this.repo = userRepository;
         this.checkSubscribeToChannel = checkSubscribeToChannel;
     }
+
+    private volatile boolean isRunning = false;
 
     public void saveUser(Update update, Long chatId, Long ref) {
         repo.save(new User(update, chatId, ref));
@@ -80,32 +78,31 @@ public class UserService {
         isRunning = true;
         try {
             log.info("Начинаем проверку подписок");
-            this.partnerList = this.partnerList.isEmpty() ? partners.findAll() : this.partnerList;
+
+            List<Partner> partnerList = partners.findAll();
             log.info("Загружено {} партнеров", partnerList.size());
 
             final long now = System.currentTimeMillis();
-
             List<User> users = repo.findAll().
                     stream().filter(User::isKickUserFromChat).toList();
 
             // Проверка активных пользователей (каждые 3 часа)
-            processActiveUsers(users, now - TimeUnit.HOURS.toMillis(3), now);
+            processActiveUsers(partnerList, users, now - TimeUnit.HOURS.toMillis(3), now);
 
             // Исключение неактивных (каждые 48 часов)
-            processInactiveUsers(users, now - TimeUnit.DAYS.toMillis(2), now);
-
+            processInactiveUsers(partnerList, users, now - TimeUnit.DAYS.toMillis(2), now);
             log.info("Проверка подписок завершена");
         } finally {
             isRunning = false;
         }
     }
 
-    private void processActiveUsers(List<User> users, long threeHoursAgo, long now) {
+    private void processActiveUsers(List<Partner> partnerList, List<User> users, long threeHoursAgo, long now) {
         for (User user : users) {
             if ((now - threeHoursAgo) < user.getLastSubscribeChecked()) continue;
 
             log.info("Проверяем пользователя: {}", user.getChatId());
-            Map<Partner, Boolean> result = checkSubscription(user.getChatId());
+            Map<Partner, Boolean> result = checkSubscription(user.getChatId(), partnerList);
             boolean notActive = result != null;
 
             if (notActive) {
@@ -118,12 +115,12 @@ public class UserService {
         }
     }
 
-    private void processInactiveUsers(List<User> users, long fortyEightHoursAgo, long now) {
+    private void processInactiveUsers(List<Partner> partnerList, List<User> users, long fortyEightHoursAgo, long now) {
         for (User user : users) {
             if ((now - fortyEightHoursAgo) < user.getLastSubscribeChecked()) continue;
 
             log.info("Проверка для исключения: {}", user.getChatId());
-            Map<Partner, Boolean> result = checkSubscription(user.getChatId());
+            Map<Partner, Boolean> result = checkSubscription(user.getChatId(), partnerList);
             boolean notActive = result != null;
 
             if (notActive) {
@@ -142,7 +139,7 @@ public class UserService {
         }
     }
 
-    private Map<Partner, Boolean> checkSubscription(Long chatId) {
+    private Map<Partner, Boolean> checkSubscription(Long chatId, List<Partner> partnerList) {
         Map<Partner, Boolean> results = checkSubscribeToChannel.checkList(chatId, partnerList);
         return !results.containsValue(false) ? null : results;
     }
