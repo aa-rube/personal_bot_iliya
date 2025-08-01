@@ -89,9 +89,7 @@ public class UserService {
             final long threeHoursAgo = now - TimeUnit.HOURS.toMillis(3);
             final long fortyEightHoursAgo = now - TimeUnit.DAYS.toMillis(2);
 
-            // Проверка активных пользователей (каждые 3 часа)
             processActiveUsers(partnerList, users, threeHoursAgo, now);
-            // Исключение неактивных (каждые 48 часов)
             processInactiveUsers(partnerList, users, fortyEightHoursAgo, now);
 
             log.info("Проверка подписок завершена");
@@ -125,7 +123,7 @@ public class UserService {
     private void processInactiveUsers(List<Partner> partnerList, List<User> users, long fortyEightHoursAgo, long now) {
         for (User user : users) {
 
-            if (!user.isActive() && fortyEightHoursAgo > user.getLastSubscribeChecked()) {
+            if (!user.isKickUserFromChat() && !user.isActive() && fortyEightHoursAgo > user.getLastSubscribeChecked()) {
 
                 log.info("Проверка для исключения: {}", user.getChatId());
                 Map<Partner, Boolean> result = checkSubscription(user.getChatId(), partnerList);
