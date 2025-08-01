@@ -63,6 +63,11 @@ public class TextMsgHandler {
         log.info("msgId: {}, chatId: {}, text: {}", msgId, chatId, text);
         if (chatId.equals(appConfig.getLogChat())) return;
 
+        if (text.equals("/trigger")) {
+            userService.subscribeChecking();
+            return;
+        }
+
         boolean ue = userService.existsById(chatId);
         if (subscribe.hasNotSubscription(update, chatId, -1, false)) return;
 
