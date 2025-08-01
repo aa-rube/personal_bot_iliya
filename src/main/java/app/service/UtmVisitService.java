@@ -21,7 +21,7 @@ public class UtmVisitService {
     }
 
     public void save(Long utmId, Long userId) {
-        if (repo.existsByIdUserId(userId)) return;
+        if (repo.existsByUserId(userId)) return;
         repo.save(new UtmVisit(uuid(), utmId, userId));
 
     }
