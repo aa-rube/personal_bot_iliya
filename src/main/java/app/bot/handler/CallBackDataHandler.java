@@ -120,7 +120,7 @@ public class CallBackDataHandler {
 
             case "award_no", "award_no_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
-                msg.processMessage(Messages.popAward(update.getCallbackQuery().getId(), m));
+                msg.processMessage(Messages.popAward(chatId,msgId, m));
             }
 
             case "watch_welcome_msg" -> {

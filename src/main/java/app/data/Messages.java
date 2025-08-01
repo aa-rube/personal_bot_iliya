@@ -227,14 +227,15 @@ public class Messages {
         return banRequest;
     }
 
-    public static Object popAward(String callBackQueryId, Map<String, String> m) {
+    public static Object popAward(Long chatId, int msgId, Map<String, String> m) {
+        String bb = m.getOrDefault("b", "0");
         String s = """
                 Для бесплатной консультации нужно 100 баллов, у вас сейчас {b}.
                 
                 Можно продолжить приглашать друзей или выбрать платную консультацию по ссылке ниже
                 """
-                .replace("{b}", m.getOrDefault("b", "0"));
-        return TelegramData.getPopupMessage(callBackQueryId, s, false);
+                .replace("{b}", bb);
+        return TelegramData.getEditMessage(chatId, s, Keyboards.mainKb(Long.parseLong(bb)), msgId);
     }
 
     public static Object emptyWelcome(Long chatId) {
@@ -286,4 +287,6 @@ public class Messages {
                 b.toString(),
                 null);
     }
+
+
 }
