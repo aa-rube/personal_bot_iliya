@@ -14,7 +14,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,8 +79,11 @@ public class TelegramData {
         return msg;
     }
 
-    public static Object getSendMediaGroupMsg(Long chatId, List<InputMedia> media) {
+    public static Object getSendMediaGroupMsg(Long chatId, List<InputMedia> media, int threadId) {
         SendMediaGroup msg = new SendMediaGroup();
+        if (threadId > 0) {
+            msg.setMessageThreadId(threadId);
+        }
         msg.setChatId(chatId);
         msg.setMedias(media);
         return msg;

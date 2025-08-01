@@ -147,11 +147,12 @@ public class TextMsgHandler {
     public void newMembers(Update update, List<User> newChatMembers) {
         Long chatId = update.getMessage().getChatId();
         int msgId = update.getMessage().getMessageId();
+        msg.processMessage(new DeleteMessage(String.valueOf(chatId), msgId));
 
         User u = newChatMembers.getFirst();
-        Object wm = autoMessageService.getAutoMsg(chatId, update, u);
+        int threadId = 89;
+        Object wm = autoMessageService.getAutoMsg(chatId, update, u, threadId);
         int welcomeMessageId = msg.processMessageReturnMsgId(wm);
         welcome.save(chatId, welcomeMessageId);
-        msg.processMessage(new DeleteMessage(String.valueOf(chatId), msgId));
     }
 }

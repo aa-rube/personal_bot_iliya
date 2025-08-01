@@ -117,10 +117,10 @@ public class BuildAutoMessageService {
         return map;
     }
 
-    public Object getAutoMsg(Long sendInChatId, Update update, User u) {
+    public Object getAutoMsg(Long sendInChatId, Update update, User u, int threadId) {
         try {
             Optional<AutoMessage> oam = repo.findById(123456789L);
-            return oam.map(autoMessage -> autoMessage.getMessages(sendInChatId, update, u)).orElse(null);
+            return oam.map(autoMessage -> autoMessage.getMessages(sendInChatId, update, u, threadId)).orElse(null);
         } catch (Exception e) {
             log.error("Error finding message: {}", e.getMessage());
             return Optional.empty();

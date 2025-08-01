@@ -82,13 +82,13 @@ public class AutoMessage {
                 voiceFilesId.size() + videoNoteFilesId.size() + fileFilesId.size();
     }
 
-    public Object getMessages(Long chatId, Update update, User user) {
+    public Object getMessages(Long chatId, Update update, User user, int threadId) {
         String content = getContent()
                 .replaceAll("\\[username]", user == null ? "test" : UpdateNameExtractor.userExtractName(user))
                 .replaceAll("\\[title]", user == null ? "test" : UpdateNameExtractor.extractGroupTitleName(update));
 
         if (mediaDataCount() == 0) {
-            return TelegramDataAutoMessage.getSendMessage(chatId, content, textEntities);
+            return TelegramDataAutoMessage.getSendMessage(chatId, content, textEntities, threadId);
         }
 
         if (imgFilesId.size() > 1 ||
@@ -105,7 +105,8 @@ public class AutoMessage {
                     voiceFilesId,
                     videoNoteFilesId,
                     fileFilesId,
-                    gifFilesId
+                    gifFilesId,
+                    threadId
             );
 
             int batchSize = 10;
@@ -113,36 +114,37 @@ public class AutoMessage {
             return MailingGroupMediaMessageBuilder.getMediaGroupMessage(
                     chatId,
                     inputMediaLessThanNine,
-                    content
+                    content,
+                    threadId
             );
         }
 
         if (imgFilesId.size() == 1) {
-            return TelegramDataAutoMessage.getSendPhoto(chatId, content, captionEntities, null, imgFilesId.getFirst());
+            return TelegramDataAutoMessage.getSendPhoto(chatId, content, captionEntities, null, imgFilesId.getFirst(), threadId);
         }
 
         if (vidFilesId.size() == 1) {
-            return TelegramDataAutoMessage.getSendVideo(chatId, content, captionEntities, null, vidFilesId.getFirst());
+            return TelegramDataAutoMessage.getSendVideo(chatId, content, captionEntities, null, vidFilesId.getFirst(), threadId);
         }
 
         if (audioFilesId.size() == 1) {
-            return TelegramDataAutoMessage.getSendAudio(chatId, content, captionEntities, null, audioFilesId.getFirst());
+            return TelegramDataAutoMessage.getSendAudio(chatId, content, captionEntities, null, audioFilesId.getFirst(), threadId);
         }
 
         if (voiceFilesId.size() == 1) {
-            return TelegramDataAutoMessage.getSendVoice(chatId, content, captionEntities, null, voiceFilesId.getFirst());
+            return TelegramDataAutoMessage.getSendVoice(chatId, content, captionEntities, null, voiceFilesId.getFirst(), threadId);
         }
 
         if (videoNoteFilesId.size() == 1) {
-            return TelegramDataAutoMessage.getSendVideoNote(chatId, null, videoNoteFilesId.getFirst());
+            return TelegramDataAutoMessage.getSendVideoNote(chatId, null, videoNoteFilesId.getFirst(), threadId);
         }
 
         if (fileFilesId.size() == 1) {
-            return TelegramDataAutoMessage.getSendDocument(chatId, content, captionEntities, null, fileFilesId.getFirst());
+            return TelegramDataAutoMessage.getSendDocument(chatId, content, captionEntities, null, fileFilesId.getFirst(), threadId);
         }
 
         if (gifFilesId.size() == 1) {
-            return TelegramDataAutoMessage.getSendAnimation(chatId, content, captionEntities, null, gifFilesId.getFirst());
+            return TelegramDataAutoMessage.getSendAnimation(chatId, content, captionEntities, null, gifFilesId.getFirst(), threadId);
         }
         return null;
     }

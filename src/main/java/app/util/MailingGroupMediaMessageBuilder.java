@@ -15,12 +15,13 @@ public class MailingGroupMediaMessageBuilder {
     /**
      * Constructs a media group message for a given chat.
      *
-     * @param chatId  the ID of the chat where the message will be sent
-     * @param caption the caption to be added to the first media item
+     * @param chatId   the ID of the chat where the message will be sent
+     * @param caption  the caption to be added to the first media item
+     * @param threadId the topic id
      * @return the constructed media group message object
      */
     public static Object getMediaGroupMessage(Long chatId, List<InputMedia> media,
-                                              String caption) {
+                                              String caption, int threadId) {
         log.debug("Creating media group message for chatId: {}", chatId);
 
         if (media.isEmpty()) {
@@ -32,7 +33,7 @@ public class MailingGroupMediaMessageBuilder {
             InputMedia firstMedia = media.getFirst();
             firstMedia.setCaption(caption);
             log.info("Setting caption and parse mode for the first media item");
-            Object message = TelegramData.getSendMediaGroupMsg(chatId, media);
+            Object message = TelegramData.getSendMediaGroupMsg(chatId, media, threadId);
             log.info("Media group message created successfully for chatId: {}", chatId);
 
             return message;
@@ -41,7 +42,7 @@ public class MailingGroupMediaMessageBuilder {
             try {
                 InputMedia firstMedia = media.getFirst();
                 firstMedia.setCaption(caption);
-                Object message = TelegramData.getSendMediaGroupMsg(chatId, media);
+                Object message = TelegramData.getSendMediaGroupMsg(chatId, media, threadId);
                 log.info("Media group message created successfully after handling exception for chatId: {}", chatId);
 
                 return message;
@@ -60,7 +61,7 @@ public class MailingGroupMediaMessageBuilder {
             List<String> voice,
             List<String> videoNote,
             List<String> files,
-            List<String> gifs) {
+            List<String> gifs, int threadId) {
 
         log.debug("Converting MediaGroupData to InputMedia list");
         List<InputMedia> media = new ArrayList<>();

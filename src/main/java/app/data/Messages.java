@@ -5,10 +5,12 @@ import app.bot.telegramdata.TelegramData;
 import app.model.Partner;
 import app.util.LinkWrapper;
 import app.util.UpdateNameExtractor;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.io.Serializable;
 import java.util.Map;
 
 public class Messages {
@@ -296,5 +298,10 @@ public class Messages {
         return TelegramData.getSendMessage(chatId,
                 b.toString(),
                 null);
+    }
+
+    public static SendMessage userShareContact(Long logChat) {
+        return new SendMessage(String.valueOf(logChat),
+                "Пользователь запросил помощи и поделился контактом");
     }
 }

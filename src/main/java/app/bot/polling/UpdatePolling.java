@@ -4,11 +4,13 @@ import app.config.AppConfig;
 import app.bot.handler.CallBackDataHandler;
 import app.bot.handler.TextMsgHandler;
 import app.bot.telegramdata.TelegramData;
+import app.data.Messages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -37,14 +39,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
         log.debug("update: {}", update);
 
         if (update.hasMessage() && update.getMessage().hasContact()) {
-            try {
-                execute(new ForwardMessage(
-                        String.valueOf(appConfig.getLogChat()),
-                        String.valueOf(update.getMessage().getChatId()),
-                        update.getMessage().getMessageId()));
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
+            contactShared(update);
             return;
         }
 
@@ -100,4 +95,20 @@ public class UpdatePolling extends TelegramLongPollingBot {
             log.error("CallBackData: {}", e.getMessage());
         }
     }
+
+
+    private void contactShared(Update update) {
+        try {
+            String chatId = String.valueOf(update.getMessage().getChatId());
+
+            execute(Messages.userShareContact(appConfig.getLogChat()));
+            execute(new ForwardMessage(
+                    String.valueOf(appConfig.getLogChat()),
+                    String.valueOf(update.getMessage().getChatId()),
+                    update.getMessage().getMessageId()));
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

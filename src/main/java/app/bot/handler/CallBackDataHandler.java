@@ -124,7 +124,8 @@ public class CallBackDataHandler {
             }
 
             case "watch_welcome_msg" -> {
-                Object o = autoMessageService.getAutoMsg(chatId, null, null);
+                int threadId = -1;
+                Object o = autoMessageService.getAutoMsg(chatId, null, null, threadId);
                 o = o == null ? Messages.emptyWelcome(chatId) : o;
                 msg.processMessage(o);
 
