@@ -45,6 +45,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
             }
         }
 
+        //ожидаем пользователя в приватном канале
         if (update.hasMessage()
                 && update.getMessage().getNewChatMembers() != null
                 && !update.getMessage().getNewChatMembers().isEmpty()) {

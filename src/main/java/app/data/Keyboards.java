@@ -204,7 +204,7 @@ public class Keyboards {
     public static InlineKeyboardMarkup utmSaved() {
         return TelegramData.createInlineKeyboardColumn(
                 new String[]{
-                        "Просмотреть спиок",
+                        "Просмотреть список",
                         "⏪ Назад"},
                 new String[]{
                         "list_utm",

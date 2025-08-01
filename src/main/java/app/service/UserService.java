@@ -66,20 +66,6 @@ public class UserService {
         return repo.findByChatIdBetweenOrderByChatIdAsc(-1L, 1000L);
     }
 
-//    private Long getLastTechnicalUserId() {
-//        return repo.findAll().stream()
-//                .map(User::getChatId)
-//                .filter(chatId -> chatId >= 0 && chatId <= 1000)
-//                .max(Long::compare)
-//                .orElse(null);
-//    }
-//
-//    public List<User> findAllUtmUsers() {
-//        return repo.findAll().stream()
-//                .filter(u -> u.getChatId() > 0 && u.getChatId() <= 1000)
-//                .toList();
-//    }
-
     public boolean existsById(Long chatId) {
         return repo.existsById(chatId);
     }
@@ -99,11 +85,14 @@ public class UserService {
 
             final long now = System.currentTimeMillis();
 
+            List<User> users = repo.findAll().
+                    stream().filter(User::isKickUserFromChat).toList();
+
             // Проверка активных пользователей (каждые 3 часа)
-            processActiveUsers(now - TimeUnit.HOURS.toMillis(3), now);
+            processActiveUsers(users, now - TimeUnit.HOURS.toMillis(3), now);
 
             // Исключение неактивных (каждые 48 часов)
-            processInactiveUsers(now - TimeUnit.DAYS.toMillis(2), now);
+            processInactiveUsers(users, now - TimeUnit.DAYS.toMillis(2), now);
 
             log.info("Проверка подписок завершена");
         } finally {
@@ -111,37 +100,38 @@ public class UserService {
         }
     }
 
-    private void processActiveUsers(long threeHoursAgo, long now) {
-        List<User> activeUsers = repo.findActiveUsersForSubscriptionCheck(threeHoursAgo);
-        log.info("Найдено {} активных пользователей для проверки", activeUsers.size());
+    private void processActiveUsers(List<User> users, long threeHoursAgo, long now) {
+        for (User user : users) {
+            if ((now - threeHoursAgo) < user.getLastSubscribeChecked()) continue;
 
-        for (User user : activeUsers) {
             log.info("Проверяем пользователя: {}", user.getChatId());
-            boolean isSubscribed = checkSubscription(user.getChatId());
+            Map<Partner, Boolean> result = checkSubscription(user.getChatId());
+            boolean notActive = result != null;
 
-            if (!isSubscribed) {
+            if (notActive) {
                 log.warn("Пользователь {} неактивен", user.getChatId());
-                msg.processMessage(Messages.leftUser(user.getChatId()));
+                msg.processMessage(Messages.leftUser(user.getChatId(), result));
             }
 
-            updateUserStatus(user, isSubscribed, now);
+            updateUserStatus(user, !notActive, now);
             Sleep.sleepSafely(3000);
         }
     }
 
-    private void processInactiveUsers(long fortyEightHoursAgo, long now) {
-        List<User> inactiveUsers = repo.findInactiveUsersForKickCheck(fortyEightHoursAgo);
-        log.info("Найдено {} неактивных пользователей для исключения", inactiveUsers.size());
+    private void processInactiveUsers(List<User> users, long fortyEightHoursAgo, long now) {
+        for (User user : users) {
+            if ((now - fortyEightHoursAgo) < user.getLastSubscribeChecked()) continue;
 
-        for (User user : inactiveUsers) {
             log.info("Проверка для исключения: {}", user.getChatId());
-            boolean isSubscribed = checkSubscription(user.getChatId());
+            Map<Partner, Boolean> result = checkSubscription(user.getChatId());
+            boolean notActive = result != null;
 
-            if (!isSubscribed) {
+            if (notActive) {
                 log.warn("Исключаем пользователя: {}", user.getChatId());
                 msg.processMessage(Messages.kickUserFromChat(user.getChatId(), appConfig.getBotPrivateChannel()));
                 user.setKickUserFromChat(true);
-                user.setLastSubscribeChecked(now + TimeUnit.DAYS.toMillis(76)); // 76 дней
+                user.setLastSubscribeChecked(now + TimeUnit.DAYS.toMillis(100000));
+                Sleep.sleepSafely(3000);
             } else {
                 user.setActive(true); // Возвращаем в активные
                 user.setLastSubscribeChecked(now);
@@ -152,9 +142,9 @@ public class UserService {
         }
     }
 
-    private boolean checkSubscription(Long chatId) {
+    private Map<Partner, Boolean> checkSubscription(Long chatId) {
         Map<Partner, Boolean> results = checkSubscribeToChannel.checkList(chatId, partnerList);
-        return !results.containsValue(false);
+        return !results.containsValue(false) ? null : results;
     }
 
     private void updateUserStatus(User user, boolean isActive, long timestamp) {

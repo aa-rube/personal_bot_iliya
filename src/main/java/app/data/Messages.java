@@ -207,9 +207,8 @@ public class Messages {
         return TelegramData.getSendMessage(logChat, s, null);
     }
 
-
-    public static Object leftUser(Long chatId) {
-        String s = """
+    public static Object leftUser(Long chatId, Map<Partner, Boolean> partners) {
+        String t = """
                 ⚠️⚠️⚠️
                 Я заметил, что вы отписались от telegram-канала Mr.SuperNew.
                 
@@ -217,7 +216,7 @@ public class Messages {
                 
                 Если вы не восстановите подписку нв течение 48 часов, доступ к закрытому чату по нейросетям будет приостановлен
                 """;
-        return new SendMessage(String.valueOf(chatId), s);
+        return TelegramData.getSendMessage(chatId, t, Keyboards.subscribe(partners));
     }
 
     public static Object kickUserFromChat(Long chatId, Long userId) {
@@ -287,6 +286,4 @@ public class Messages {
                 b.toString(),
                 null);
     }
-
-
 }
