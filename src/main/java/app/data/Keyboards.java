@@ -66,7 +66,7 @@ public class Keyboards {
     }
 
     public static InlineKeyboardMarkup areYouOk() {
-        return TelegramData.createInlineKeyboardLine(
+        return TelegramData.createInlineKeyboardColumn(
                 new String[]{"✅ Всё работает\uD83E\uDD1D", "Нужна помощь", "⌛ Пока не приступал(а)"},
                 new String[]{"areYouOk?yes", "areYouOk?help", "areYouOk?wait"}
         );
