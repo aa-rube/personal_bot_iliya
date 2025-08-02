@@ -1,7 +1,6 @@
 package app.service;
 
 import app.bot.api.MessagingService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
@@ -103,7 +102,7 @@ public class WelcomeMessageService {
         if (now - ts < DELETE_AFTER.toMillis()) return; // ещё рано
 
         try {
-            msg.processMessage(new DeleteMessage(String.valueOf(chatId), msgId));
+            msg.process(new DeleteMessage(String.valueOf(chatId), msgId));
             redis.delete(key);
             log.debug("Deleted welcome message chatId={}, msgId={}", chatId, msgId);
         } catch (Exception e) {

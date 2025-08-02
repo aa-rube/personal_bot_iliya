@@ -43,7 +43,7 @@ public class BuildAutoMessageService {
         // CASE 1: Text message
         if (message.hasText() && message.getMediaGroupId() == null) {
             if (message.getText().length() > 4096) {
-                msg.processMessage(new SendMessage(String.valueOf(chatId), TEXT_EXCEPTION));
+                msg.process(new SendMessage(String.valueOf(chatId), TEXT_EXCEPTION));
                 return;
             }
 
@@ -55,7 +55,7 @@ public class BuildAutoMessageService {
                 );
                 save(am);
             } catch (Exception e) {
-                msg.processMessage(new SendMessage(String.valueOf(chatId), e.getMessage()));
+                msg.process(new SendMessage(String.valueOf(chatId), e.getMessage()));
             }
             return;
         }
@@ -75,7 +75,7 @@ public class BuildAutoMessageService {
                     save(am);
                 }
             } catch (Exception e) {
-                msg.processMessage(new SendMessage(String.valueOf(chatId), e.getMessage()));
+                msg.process(new SendMessage(String.valueOf(chatId), e.getMessage()));
             }
         }
     }

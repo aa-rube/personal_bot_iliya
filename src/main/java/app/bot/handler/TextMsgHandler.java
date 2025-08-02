@@ -68,7 +68,7 @@ public class TextMsgHandler {
             return;
         }
         if (text.equals("/trigger2")) {
-            msg.processMessage(Messages.areYouOk(chatId));
+            msg.process(Messages.areYouOk(chatId));
             return;
         }
 
@@ -82,7 +82,7 @@ public class TextMsgHandler {
 
             Map<String, String> m = referralService.getUsrLevel(chatId);
             boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
-            msg.processMessage(Messages.mainMenu(chatId, -1, pc, m));
+            msg.process(Messages.mainMenu(chatId, -1, pc, m));
             return;
         }
 
@@ -100,15 +100,15 @@ public class TextMsgHandler {
                     userService.saveUser(update, chatId, ref);
 
                     if (c > 100) {
-                        msg.processMessage(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));
-                        msg.processMessage(Messages.overInviteLimitForUser(ref));
+                        msg.process(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));
+                        msg.process(Messages.overInviteLimitForUser(ref));
                     } else {
-                        msg.processMessage(Messages.newUser(update, appConfig.getLogChat(), ref, c));
+                        msg.process(Messages.newUser(update, appConfig.getLogChat(), ref, c));
 
                         Map<String, String> m = referralService.getUsrLevel(chatId);
                         long count = Long.parseLong(m.getOrDefault("b", "0"));
                         if (count != 0 && count % 10 == 0) {
-                            msg.processMessage(Messages.cheers(ref, m));
+                            msg.process(Messages.cheers(ref, m));
                         }
                     }
                 }
@@ -120,26 +120,26 @@ public class TextMsgHandler {
 
         if (text.equals("/admin")) {
             if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
-                msg.processMessage(Messages.adminPanel(chatId, -1));
+                msg.process(Messages.adminPanel(chatId, -1));
             }
             return;
         }
 
         if (update.hasMessage() && update.getMessage().hasContact()) {
-            msg.processMessage(Messages.adminMsgHelp(update, appConfig.getLogChat()));
-            msg.processMessage(new ForwardMessage(String.valueOf(appConfig.getLogChat()), String.valueOf(chatId), msgId));
+            msg.process(Messages.adminMsgHelp(update, appConfig.getLogChat()));
+            msg.process(new ForwardMessage(String.valueOf(appConfig.getLogChat()), String.valueOf(chatId), msgId));
             activationService.deleteByUserId(chatId);
         }
 
         if (stateManager.statusIs(chatId, "edit_welcome_message")) {
             autoMessageService.getOrAwaitScheduleMessage(chatId, update.getMessage());
-            msg.processMessage(Messages.welcomeMessageSaved(chatId));
+            msg.process(Messages.welcomeMessageSaved(chatId));
             return;
         }
 
         if (stateManager.statusIs(chatId, "add_utm")) {
             long newUtmId = userService.saveNewUtmUser(text);
-            msg.processMessage(Messages.utmSaved(chatId, newUtmId));
+            msg.process(Messages.utmSaved(chatId, newUtmId));
             return;
         }
     }
@@ -147,7 +147,7 @@ public class TextMsgHandler {
     public void newMembers(Update update, List<User> newChatMembers) {
         Long chatId = update.getMessage().getChatId();
         int msgId = update.getMessage().getMessageId();
-        msg.processMessage(new DeleteMessage(String.valueOf(chatId), msgId));
+        msg.process(new DeleteMessage(String.valueOf(chatId), msgId));
 
         User u = newChatMembers.getFirst();
         int threadId = 89;

@@ -23,7 +23,7 @@ public class MessagingService {
 
     private final UpdatePolling bot;
 
-    public void processMessage(Object msg) {
+    public void process(Object msg) {
         log.info("Обрабатываем сообщение типа: {}", msg.getClass().getSimpleName());
         try {
             switch (msg) {

@@ -38,12 +38,12 @@ public class CheckSubscribeToChannel {
         if (!results.containsValue(false)) {
             if (subscribeChek) {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
-                msg.processMessage(Messages.uniqueLink(chatId, msgId, m));
+                msg.process(Messages.uniqueLink(chatId, msgId, m));
             }
 
             return false;
         } else {
-            msg.processMessage(Messages.subscribeMsg(update, chatId, msgId, results));
+            msg.process(Messages.subscribeMsg(update, chatId, msgId, results));
             return true;
         }
     }

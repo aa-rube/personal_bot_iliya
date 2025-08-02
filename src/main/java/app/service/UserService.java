@@ -108,7 +108,7 @@ public class UserService {
 
                 if (notActive) {
                     log.warn("Пользователь {} неактивен", user.getChatId());
-                    msg.processMessage(Messages.leftUser(user.getChatId(), result));
+                    msg.process(Messages.leftUser(user.getChatId(), result));
                 }
 
                 user.setActive(false);
@@ -131,7 +131,7 @@ public class UserService {
 
                 if (notActive) {
                     log.warn("Исключаем пользователя: {}", user.getChatId());
-                    msg.processMessage(Messages.kickUserFromChat(user.getChatId(), appConfig.getBotPrivateChannel()));
+                    msg.process(Messages.kickUserFromChat(user.getChatId(), appConfig.getBotPrivateChannel()));
                     user.setKickUserFromChat(true);
                     user.setLastSubscribeChecked(now + TimeUnit.DAYS.toMillis(100000));
                     Sleep.sleepSafely(3000);
