@@ -67,8 +67,16 @@ public class Keyboards {
 
     public static InlineKeyboardMarkup areYouOk() {
         return TelegramData.createInlineKeyboardColumn(
-                new String[]{"✅ Всё работает\uD83E\uDD1D", "Нужна помощь", "⌛ Пока не приступал(а)"},
-                new String[]{"areYouOk?yes", "areYouOk?help", "areYouOk?wait"}
+                new String[]{
+                        "✅ Всё работает\uD83E\uDD1D",
+                        "Нужна помощь",
+                        "⌛ Пока не приступал(а)"
+                },
+                new String[]{
+                        "areYouOk?yes",
+                        "areYouOk?help",
+                        "areYouOk?wait"
+                }
         );
     }
 
@@ -136,22 +144,6 @@ public class Keyboards {
                 }
         );
     }
-
-    public static InlineKeyboardMarkup utmEdit() {
-        return TelegramData.createInlineKeyboardColumn(
-                new String[]{
-                        "Посмотреть список",
-                        "Создать utm-метку",
-                        "⏪ Назад"
-                },
-                new String[]{
-                        "utm",
-                        "edit_welcome_msg",
-                        "admin_menu"
-                }
-        );
-    }
-
 
     public static InlineKeyboardMarkup welcomeMessageSaved() {
         return TelegramData.createInlineKeyboardColumn(

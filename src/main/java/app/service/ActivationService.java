@@ -57,6 +57,7 @@ public class ActivationService {
             int s = a.stepByStep(1);
             if (s == 0) {
                 msg.processMessage(Messages.areYouOk(a.getUserId()));
+                a.setStep(-1);
                 save(a);
             }
 
