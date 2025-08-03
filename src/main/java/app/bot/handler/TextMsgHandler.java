@@ -130,6 +130,7 @@ public class TextMsgHandler {
             if (chatId.equals(7833048230L) || chatId.equals(6134218314L)) {
                 msg.process(Messages.adminPanel(chatId, -1));
                 userActionService.addUserAction(chatId, UserActionData.OPEN_ADMIN_PANEL_SUCCESS);
+                return;
             }
 
             userActionService.addUserAction(chatId, UserActionData.OPEN_ADMIN_PANEL_FAIL);

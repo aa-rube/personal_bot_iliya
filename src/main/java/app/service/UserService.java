@@ -116,7 +116,7 @@ public class UserService {
                 if (notActive) {
                     log.warn("Пользователь {} неактивен", user.getChatId());
                     msg.process(Messages.leftUser(user.getChatId(), result));
-                    userActionService.addUserAction(user.getChatId(), UserActionData.LEFT_PUBLICK_CHANNEL);
+                    userActionService.addUserAction(user.getChatId(), UserActionData.LEFT_PUBLIC_CHANNEL);
                 }
 
                 user.setActive(false);
@@ -149,7 +149,7 @@ public class UserService {
                     user.setActive(true); // Возвращаем в активные
                     user.setLastSubscribeChecked(now);
 
-                    userActionService.addUserAction(user.getChatId(), UserActionData.RETURN_PUBLICK_CHANNEL_48H);
+                    userActionService.addUserAction(user.getChatId(), UserActionData.RETURN_PUBLIC_CHANNEL_48H);
                 }
 
                 repo.save(user);
