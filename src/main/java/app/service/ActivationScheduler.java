@@ -59,7 +59,7 @@ public class ActivationScheduler {
                 var lvl = referral.getUsrLevel(a.getUserId());
                 int pin = msg.processMessageReturnMsgId(Messages.share(a.getUserId(), lvl));
                 msg.process(new PinChatMessage(String.valueOf(a.getUserId()), pin));
-                userActionService.addUserAction(a.getUserId(), UserActionData.GET_SCHEDULE_MSG_IS_ARE_YOU_OK_73H_7D_14D);
+                userActionService.addUserAction(a.getUserId(), UserActionData.GET_SCHEDULE_MSG_IS_SHARE_WITH_FRIENDS_72H_7D_14D);
             }
 
             default -> { /* DONE – ничего не делаем */ }
