@@ -1,17 +1,17 @@
 package app.data;
 
-
 import app.bot.telegramdata.TelegramData;
 import app.model.Partner;
+import app.model.User;
 import app.util.LinkWrapper;
 import app.util.UpdateNameExtractor;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Messages {
 
@@ -92,7 +92,7 @@ public class Messages {
                 : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
     }
 
-    public static Object share(Long chatId, int msgId, Map<String, String> m) {
+    public static Object share(Long chatId, Map<String, String> m) {
         String link = "https://t.me/UstanovkaChatGPTbot?start=" + chatId;
         String text = """
                 Твоя жизнь уже стала проще и эффективнее с нейросетями?
@@ -271,7 +271,7 @@ public class Messages {
         return TelegramData.getSendMessage(chatId, "Сообщение сохранено!", Keyboards.welcomeMessageSaved());
     }
 
-    public static Object inputNewTextForWelcomeMsg(Long chatId, int msId) {
+    public static Object inputNewTextForWelcomeMsg(Long chatId) {
         return TelegramData.getSendMessage(chatId,
                 "Введите текст нового сообщение для приветствия. \n\nМожно использовать все типы форматирования телеграм кроме премиум emoji",
                 Keyboards.cancelInputNewWelcomeText());
@@ -294,10 +294,15 @@ public class Messages {
                 Keyboards.utmSaved());
     }
 
-    public static Object listUtm(Long chatId, StringBuffer b) {
-        return TelegramData.getSendMessage(chatId,
-                b.toString(),
-                null);
+    public static Object listUtm(Long chatId, String botUserName, List<User> users) {
+        AtomicInteger i = new AtomicInteger(1);
+        StringBuffer b = new StringBuffer().append("Список UTM:\n");
+        users.forEach(u ->
+                b.append(i.getAndAdd(1)).append(". <code>")
+                        .append("https://t.me/").append(botUserName).append("?start=")
+                        .append(u.getChatId()).append("</code>, ").append(u.getFullName()).append("\n\n")
+        );
+        return TelegramData.getSendMessage(chatId, b.toString(),null);
     }
 
     public static SendMessage userShareContact(Long logChat) {

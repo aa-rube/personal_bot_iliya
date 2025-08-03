@@ -1,9 +1,11 @@
 package app.bot.api;
 
 import app.data.Messages;
+import app.data.UserActionData;
 import app.model.Partner;
 import app.repository.PartnersRepository;
 import app.service.ReferralService;
+import app.service.UserActionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -18,13 +20,16 @@ import java.util.Map;
 @Service
 public class CheckSubscribeToChannel {
 
+    private final UserActionService userActionService;
     private final PartnersRepository partners;
     private final ReferralService referralService;
     private final MessagingService msg;
 
-    public CheckSubscribeToChannel(PartnersRepository partners,
+    public CheckSubscribeToChannel(UserActionService userActionService,
+                                   PartnersRepository partners,
                                    ReferralService referralService,
                                    @Lazy MessagingService msg) {
+        this.userActionService = userActionService;
         this.partners = partners;
         this.referralService = referralService;
         this.msg = msg;

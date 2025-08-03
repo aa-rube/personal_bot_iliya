@@ -5,12 +5,13 @@ import app.bot.handler.CallBackDataHandler;
 import app.bot.handler.TextMsgHandler;
 import app.bot.telegramdata.TelegramData;
 import app.data.Messages;
+import app.data.UserActionData;
+import app.service.UserActionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -23,6 +24,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
     private final AppConfig appConfig;
     private final TextMsgHandler textMsgHandler;
     private final CallBackDataHandler callBackDataHandler;
+    private final UserActionService userActionService;
 
     @Override
     public String getBotUsername() {
@@ -47,6 +49,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
             try {
                 execute(new DeleteMessage(String.valueOf(update.getMessage().getChatId()),
                         update.getMessage().getMessageId()));
+                userActionService.addUserAction(update.getMessage().getChatId(), UserActionData.LEFT_PRIVATE_CHANNEL);
                 return;
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
@@ -99,16 +102,15 @@ public class UpdatePolling extends TelegramLongPollingBot {
 
     private void contactShared(Update update) {
         try {
-            String chatId = String.valueOf(update.getMessage().getChatId());
-
             execute(Messages.userShareContact(appConfig.getLogChat()));
             execute(new ForwardMessage(
                     String.valueOf(appConfig.getLogChat()),
                     String.valueOf(update.getMessage().getChatId()),
                     update.getMessage().getMessageId()));
+
+            userActionService.addUserAction(update.getMessage().getChatId(), UserActionData.SHARE_PERSONAL_CONTACT_WITH_BOT);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
     }
-
 }

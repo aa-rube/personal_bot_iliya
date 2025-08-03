@@ -4,6 +4,7 @@ import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
 import app.config.AppConfig;
 import app.data.Messages;
+import app.data.UserActionData;
 import app.model.Partner;
 import app.model.User;
 import app.repository.PartnersRepository;
@@ -31,17 +32,23 @@ public class UserService {
     private final MessagingService msg;
     private final PartnersRepository partners;
     private final CheckSubscribeToChannel checkSubscribeToChannel;
+    private final UserActionService userActionService;
+
 
     public UserService(AppConfig appConfig,
                        PartnersRepository partners,
                        @Lazy MessagingService msg,
                        UserRepository userRepository,
-                       CheckSubscribeToChannel checkSubscribeToChannel) {
+                       CheckSubscribeToChannel checkSubscribeToChannel,
+                       UserActionService userActionService
+
+    ) {
         this.appConfig = appConfig;
         this.partners = partners;
         this.msg = msg;
         this.repo = userRepository;
         this.checkSubscribeToChannel = checkSubscribeToChannel;
+        this.userActionService = userActionService;
     }
 
     private volatile boolean isRunning = false;
@@ -109,6 +116,7 @@ public class UserService {
                 if (notActive) {
                     log.warn("Пользователь {} неактивен", user.getChatId());
                     msg.process(Messages.leftUser(user.getChatId(), result));
+                    userActionService.addUserAction(user.getChatId(), UserActionData.LEFT_PUBLICK_CHANNEL);
                 }
 
                 user.setActive(false);
@@ -135,9 +143,13 @@ public class UserService {
                     user.setKickUserFromChat(true);
                     user.setLastSubscribeChecked(now + TimeUnit.DAYS.toMillis(100000));
                     Sleep.sleepSafely(3000);
+
+                    userActionService.addUserAction(user.getChatId(), UserActionData.REMOVE_PRIVATE_CHANNEL_48H);
                 } else {
                     user.setActive(true); // Возвращаем в активные
                     user.setLastSubscribeChecked(now);
+
+                    userActionService.addUserAction(user.getChatId(), UserActionData.RETURN_PUBLICK_CHANNEL_48H);
                 }
 
                 repo.save(user);

@@ -4,7 +4,9 @@ import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.MessagingService;
 import app.data.Messages;
 import app.config.AppConfig;
+import app.data.UserActionData;
 import app.model.Activation;
+import app.model.User;
 import app.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -12,8 +14,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -28,6 +30,7 @@ public class CallBackDataHandler {
     private final RequestService requestService;
     private final StateManager stateManager;
     private final UserService userService;
+    private final UserActionService userActionService;
 
     public CallBackDataHandler(@Lazy MessagingService msg,
                                AppConfig appConfig,
@@ -36,7 +39,7 @@ public class CallBackDataHandler {
                                ActivationService activationService,
                                BuildAutoMessageService autoMessageService,
                                RequestService requestService,
-                               StateManager stateManager, UserService userService
+                               StateManager stateManager, UserService userService, UserActionService userActionService
     ) {
         this.appConfig = appConfig;
         this.msg = msg;
@@ -47,6 +50,7 @@ public class CallBackDataHandler {
         this.requestService = requestService;
         this.stateManager = stateManager;
         this.userService = userService;
+        this.userActionService = userActionService;
     }
 
     public void updateHandler(Update update) {
@@ -64,9 +68,13 @@ public class CallBackDataHandler {
 
         switch (data) {
             case "subscribe_chek" -> {
+                userActionService.addUserAction(chatId, UserActionData.INITIAL_SUBSCRIBE_CHECK);
+
                 if (!subscribe.hasNotSubscription(update, chatId, msgId, true)) {
                     activationService.save(new Activation(chatId, Activation.Step.SECOND));
+                    userActionService.addUserAction(chatId, UserActionData.CHECK_SUBSCRIBE_SUCCESS);
                 }
+                userActionService.addUserAction(chatId, UserActionData.CHECK_SUBSCRIBE_FAIL);
                 return;
             }
 
@@ -74,11 +82,13 @@ public class CallBackDataHandler {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
                 msg.process(Messages.mainMenu(chatId, msgId, pc, m));
+                userActionService.addUserAction(chatId, UserActionData.OPEN_MAIN_MENU);
                 return;
             }
 
             case "admin_menu" -> {
                 msg.process(Messages.adminPanel(chatId, msgId));
+                userActionService.addUserAction(chatId, UserActionData.OPEN_ADMIN_PANEL_SUCCESS_BY_CALLBACK);
                 return;
             }
 
@@ -86,16 +96,18 @@ public class CallBackDataHandler {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msgId = data.contains("s_") ? -1 : msgId;
                 msg.process(Messages.myBolls(chatId, msgId, m));
+                userActionService.addUserAction(chatId, UserActionData.OPEN_MY_BOLLS);
                 return;
             }
 
             case "share", "share_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
 
-                int i = msg.processMessageReturnMsgId(Messages.share(chatId, -1, m));
+                int i = msg.processMessageReturnMsgId(Messages.share(chatId, m));
                 msg.process(new PinChatMessage(String.valueOf(chatId), i));
 
                 activationService.save(new Activation(chatId, Activation.Step.FIRST));
+                userActionService.addUserAction(chatId, UserActionData.OPEN_SHARE);
                 return;
             }
 
@@ -103,6 +115,8 @@ public class CallBackDataHandler {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msgId = data.contains("s_") ? -1 : msgId;
                 msg.process(Messages.spendBolls(chatId, msgId, m));
+
+                userActionService.addUserAction(chatId, UserActionData.OPEN_SPEND_BOLLS_MENU);
                 return;
             }
 
@@ -112,12 +126,16 @@ public class CallBackDataHandler {
 
                 msg.process(Messages.adminNotificationAward(appConfig.getLogChat(), chatId, msgId));
                 requestService.save(chatId);
+
+                userActionService.addUserAction(chatId, UserActionData.REQUEST_AWARD_YES);
                 return;
             }
 
             case "award_no", "award_no_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msg.process(Messages.popAward(chatId,msgId, m));
+
+                userActionService.addUserAction(chatId, UserActionData.REQUEST_AWARD_NO);
             }
 
             case "watch_welcome_msg" -> {
@@ -126,42 +144,47 @@ public class CallBackDataHandler {
                 o = o == null ? Messages.emptyWelcome(chatId) : o;
                 msg.process(o);
 
+                userActionService.addUserAction(chatId, UserActionData.WATCHING_WELCOME_MESSAGE);
                 return;
             }
 
             case "start_welcome_msg" -> {
                 msg.process(Messages.startEditWelcomeMessage(chatId, msgId));
+
+                userActionService.addUserAction(chatId, UserActionData.START_EDIT_WELCOME_MESSAGE);
+                return;
             }
 
             case "edit_welcome_msg" -> {
-                msg.process(Messages.inputNewTextForWelcomeMsg(chatId, msgId));
+                msg.process(Messages.inputNewTextForWelcomeMsg(chatId));
                 stateManager.setStatus(chatId, "edit_welcome_message");
+                userActionService.addUserAction(chatId, UserActionData.EDITING_WELCOME_MESSAGE);
+                return;
             }
 
             case "start_utm" -> {
                 msg.process(Messages.startEditUtm(chatId, msgId));
+
+                userActionService.addUserAction(chatId, UserActionData.START_EDIT_UTM);
                 return;
             }
 
             case "add_utm" -> {
                 msg.process(Messages.addUtm(chatId, msgId));
                 stateManager.setStatus(chatId, data);
+
+                userActionService.addUserAction(chatId, UserActionData.ADDING_NEW_UTM_START);
                 return;
             }
 
             case "list_utm" -> {
-                String bun = appConfig.getUsername().split("@")[1];
-                AtomicInteger i = new AtomicInteger(1);
+                String botUserName = appConfig.getUsername().split("@")[1];
+                List<User> users = userService.findAllUtmUsers();
 
-                StringBuffer b = new StringBuffer().append("Список UTM:\n");
-                userService.findAllUtmUsers().forEach(u ->
-                        b.append(i.getAndAdd(1)).append(". <code>")
-                        .append("https://t.me/").append(bun).append("?start=")
-                        .append(u.getChatId()).append("</code>, ").append(u.getFullName()).append("\n\n")
-                );
-
-                msg.process(Messages.listUtm(chatId, b));
+                msg.process(Messages.listUtm(chatId, botUserName, users));
                 msg.process(Messages.startEditUtm(chatId, -1));
+
+                userActionService.addUserAction(chatId, UserActionData.WATCHING_UTM_LIST);
                 return;
             }
         }
@@ -174,21 +197,25 @@ public class CallBackDataHandler {
                     msg.process(Messages.yes(chatId, msgId));
                     Activation a = activationService.getActivation(chatId);
                     a.setStep(1);
+
+                    userActionService.addUserAction(chatId, UserActionData.ARE_YOU_OK_YES);
                 }
 
                 case "help" -> {
                     msg.process(Messages.userMsgHelp(chatId));
                     msg.process(Messages.adminMsgHelp(update, appConfig.getLogChat()));
+
+                    userActionService.addUserAction(chatId, UserActionData.ARE_YOU_OK_HELP);
                 }
 
                 case "wait" -> {
                     Map<String, String> m = referralService.getUsrLevel(chatId);
                     boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
                     msg.process(Messages.mainMenu(chatId, msgId, pc, m));
+
+                    userActionService.addUserAction(chatId, UserActionData.ARE_YOU_OK_WAIT);
                 }
             }
         }
-
     }
-
 }

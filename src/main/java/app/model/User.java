@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 
 
 @Getter
@@ -24,12 +25,13 @@ public class User {
     private Long referrerId;
     private int level;
     private int points;
+
     private LocalDate firstSeen;
     private LocalDate lastAction;
 
+
     private boolean isActive;
     private long lastSubscribeChecked;
-
     private boolean isKickUserFromChat;
 
     public User(Update update, Long chatId, Long referrerId) {
