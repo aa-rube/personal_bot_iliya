@@ -238,9 +238,8 @@ public class CallBackDataHandler {
                 }
 
                 case "wait" -> {
-                    Map<String, String> m = referralService.getUsrLevel(chatId);
-                    boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
-                    msg.process(Messages.mainMenu(chatId, msgId, pc, m));
+
+                    msg.process(Messages.willWaitForYouToo(chatId, msgId));
 
                     userActionService.addUserAction(chatId, UserActionData.ARE_YOU_OK_WAIT);
                 }

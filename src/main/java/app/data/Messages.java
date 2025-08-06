@@ -197,6 +197,17 @@ public class Messages {
         return TelegramData.getEditMessage(chatId, s, null, msgId);
     }
 
+    public static Object willWaitForYouToo(Long chatId, int msgId) {
+        String t = """
+        Спасибо за Ваш ответ ❤
+        
+        Если возникли трудности — напишите свой вопрос в клубном чате поддержки.
+        👉 Перейти в чат: https://t.me/+mVz-AQPlpm5mYzE5
+        """;
+        return TelegramData.getEditMessage(chatId, t, null, msgId);
+    }
+
+
     public static Object userMsgHelp(Long chatId) {
         String s = """
                 Если возникли трудности — напишите свой вопрос в клубном чате поддержки.
@@ -253,6 +264,11 @@ public class Messages {
     public static SendMessage userShareContact(Long logChat) {
         return new SendMessage(String.valueOf(logChat),
                 "Пользователь запросил помощи и поделился контактом");
+    }
+
+    public static SendMessage userShareContactMsgToUser(Long logChat) {
+        return new SendMessage(String.valueOf(logChat),
+                "Спасибо что поделись Вашим контактом! Мы свяжемся с Вами в самое ближайшее время!");
     }
 
 

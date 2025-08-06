@@ -108,6 +108,8 @@ public class UpdatePolling extends TelegramLongPollingBot {
                     String.valueOf(update.getMessage().getChatId()),
                     update.getMessage().getMessageId()));
 
+            execute(Messages.userShareContactMsgToUser(update.getMessage().getChatId()));
+
             userActionService.addUserAction(update.getMessage().getChatId(), UserActionData.SHARE_PERSONAL_CONTACT_WITH_BOT);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
