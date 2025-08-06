@@ -72,7 +72,9 @@ public class CallBackDataHandler {
 
         log.info("msgId: {}, chatId: {}, data: {}", msgId, chatId, data);
 
-        stateManager.remove(chatId);
+        if (!data.startsWith("ft:")) {
+            stateManager.remove(chatId);
+        }
 
         if (!data.equals("subscribe_chek")) {
             if (subscribe.hasNotSubscription(update, chatId, msgId, false)) return;
