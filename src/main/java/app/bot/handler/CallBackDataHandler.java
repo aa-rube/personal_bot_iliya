@@ -3,6 +3,7 @@ package app.bot.handler;
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.DateRangePickerService;
 import app.bot.api.MessagingService;
+import app.bot.telegramdata.TelegramData;
 import app.data.Messages;
 import app.config.AppConfig;
 import app.data.UserActionData;
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -205,8 +208,32 @@ public class CallBackDataHandler {
             case "sub_unsub" -> {
                 stateManager.setStatus(chatId, data);
                 calendar.start(chatId, msgId);
-
                 return;
+            }
+
+            case "ft:ok" -> {
+                Optional<Map<String, LocalDate>> ftOptional = calendar.handle(chatId, msgId, data);
+
+                if (ftOptional.isPresent()) {
+                    if (stateManager.statusIs(chatId, "sub_unsub")) {
+                        Map<String, LocalDate> ftMap = ftOptional.get();
+
+                        LocalDate f = ftMap.get("f");
+                        LocalDate t = ftMap.get("t");
+                        try {
+                            String link = channelReportService.export(f, t);
+                            msg.process(TelegramData.getEditMessage(chatId, link, null, msgId));
+
+                        } catch (Exception e) {
+                            log.error("Report {} create exception: {}", stateManager.getStatus(chatId), e.getMessage());
+                        }
+                        return;
+                    }
+
+                    if (stateManager.statusIs(chatId, "example")) {
+                        return;
+                    }
+                }
             }
         }
 

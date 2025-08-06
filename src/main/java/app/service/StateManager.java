@@ -13,10 +13,14 @@ public class StateManager {
     }
 
     public boolean statusIs(Long chatId, String s) {
-        return stringState.getOrDefault(chatId, "").equals(s);
+        return getStatus(chatId).equals(s);
     }
 
     public void remove(Long chatId) {
         stringState.remove(chatId);
+    }
+
+    public String getStatus(Long chatId) {
+        return stringState.getOrDefault(chatId, "");
     }
 }
