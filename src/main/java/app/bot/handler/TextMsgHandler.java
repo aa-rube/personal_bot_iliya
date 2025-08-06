@@ -163,8 +163,7 @@ public class TextMsgHandler {
 
         User u = newChatMembers.getFirst();
         int threadId = 89;
-        Object wm = autoMessageService.getAutoMsg(chatId, update, u, threadId);
-        int welcomeMessageId = msg.processMessageReturnMsgId(wm);
+        int welcomeMessageId = msg.processMessageReturnMsgId(autoMessageService.getAutoMsg(chatId, update, u, threadId));
         welcome.save(chatId, welcomeMessageId);
 
         userActionService.addUserAction(chatId, UserActionData.JOIN_PRIVATE_CHANNEL);
