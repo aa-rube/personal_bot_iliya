@@ -250,6 +250,11 @@ public class CallBackDataHandler {
         if (data.startsWith("ft:")) {
             calendar.handle(chatId, msgId, data);
         }
+
+        if (data.equals("ft:cancel")) {
+            stateManager.remove(chatId);
+            msg.process(Messages.starReport(chatId, msgId));
+        }
     }
 
     private void reportRequestHandler(Long chatId, int msgId, String data) {
