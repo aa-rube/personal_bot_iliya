@@ -120,9 +120,10 @@ public class BuildAutoMessageService {
     public Object getAutoMsg(Long sendInChatId, Update update, User u, int threadId) {
         try {
             Optional<AutoMessage> oam = repo.findById(123456789L);
-            return oam.map(autoMessage -> autoMessage.getMessages(sendInChatId, update, u, threadId)).orElse(null);
+            return oam.map(autoMessage -> autoMessage.getMessages(sendInChatId, update, u, threadId))
+                    .orElse(null);
         } catch (Exception e) {
-            log.error("Error finding message: {}", e.getMessage());
+            log.error("Error creating message: {}", e.getMessage());
             return Optional.empty();
         }
     }
