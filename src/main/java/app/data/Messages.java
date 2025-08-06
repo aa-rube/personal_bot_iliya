@@ -333,9 +333,10 @@ public class Messages {
     }
 
     public static Object getSuccessReportResult(Long chatId, int msgId,String reportName, String link, String data) {
-        String t = "Ваш {rn} успешно записан в "
-                + LinkWrapper.wrapTextInLink("таблицу google sheets", link);
-                t = t.replace("{rn}", reportName);
+        String t = "Ваш {rn} успешно записан в {l}"
+                .replace("{rn}", reportName)
+                .replace("{l}", LinkWrapper.wrapTextInLink("таблицу google sheets", link));
+
         return TelegramData.getEditMessage(chatId, t, Keyboards.getSuccessReportResult(data), msgId);
     }
 }
