@@ -125,6 +125,7 @@ public class TelegramDataAutoMessage {
         if (threadId > 0) {
             msg.setMessageThreadId(threadId);
         }
+        msg.enableHtml(true);
         msg.setText(text);
         msg.setParseMode(ParseMode.HTML);
         msg.setReplyMarkup(null);
