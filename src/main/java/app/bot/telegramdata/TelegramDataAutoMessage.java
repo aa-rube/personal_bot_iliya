@@ -129,7 +129,6 @@ public class TelegramDataAutoMessage {
         msg.setParseMode(ParseMode.HTML);
         msg.enableHtml(true);
         msg.setReplyMarkup(null);
-        msg.enableHtml(false);
         return msg;
     }
 
