@@ -122,9 +122,7 @@ public class TelegramDataAutoMessage {
     public static Object getSendMessage(Long chatId, String text, int threadId) {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId);
-        if (threadId > 0) {
-            msg.setMessageThreadId(threadId);
-        }
+        if (threadId > 0) msg.setMessageThreadId(threadId);
         msg.setText(text);
         msg.setParseMode(ParseMode.HTML);
         msg.enableHtml(true);
