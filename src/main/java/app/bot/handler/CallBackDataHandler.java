@@ -3,7 +3,6 @@ package app.bot.handler;
 import app.bot.api.CheckSubscribeToChannel;
 import app.bot.api.DateRangePickerService;
 import app.bot.api.MessagingService;
-import app.bot.telegramdata.TelegramData;
 import app.data.Messages;
 import app.config.AppConfig;
 import app.data.UserActionData;
@@ -214,29 +213,7 @@ public class CallBackDataHandler {
             }
 
             case "ft:ok" -> {
-                Optional<Map<String, LocalDate>> ftOptional = calendar.handle(chatId, msgId, data);
-
-                if (ftOptional.isPresent()) {
-                    if (stateManager.statusIs(chatId, "sub_unsub")) {
-                        Map<String, LocalDate> ftMap = ftOptional.get();
-
-                        LocalDate f = ftMap.get("f");
-                        LocalDate t = ftMap.get("t");
-                        try {
-                            String link = channelReportService.export(f, t);
-                            msg.process(TelegramData.getEditMessage(chatId, link, null, msgId));
-
-                        } catch (Exception e) {
-                            log.error("Report {} create exception: {}", stateManager.getStatus(chatId), e.getMessage());
-                        }
-                        return;
-                    }
-
-                    if (stateManager.statusIs(chatId, "example")) {
-                        return;
-                    }
-                }
-
+                reportRequestHandler(chatId, msgId, data);
                 return;
             }
         }
@@ -272,6 +249,35 @@ public class CallBackDataHandler {
 
         if (data.startsWith("ft:")) {
             calendar.handle(chatId, msgId, data);
+        }
+    }
+
+    private void reportRequestHandler(Long chatId, int msgId, String data) {
+
+        Optional<Map<String, LocalDate>> ftOptional = calendar.handle(chatId, msgId, data);
+        String state = stateManager.getState(chatId);
+
+        if (ftOptional.isPresent()) {
+
+            switch (state) {
+
+                case "sub_unsub" -> {
+                    Map<String, LocalDate> ftMap = ftOptional.get();
+                    LocalDate f = ftMap.getOrDefault("f", LocalDate.now());
+                    LocalDate t = ftMap.getOrDefault("t", LocalDate.now());
+                    try {
+                        String link = channelReportService.export(f, t);
+                        msg.process(Messages.getSuccessReportResult(chatId, msgId, "отчет по подпискам", link, state));
+                    } catch (Exception e) {
+                        log.error("Report {} create exception: {}", stateManager.getState(chatId), e.getMessage());
+                    }
+
+                }
+
+                case "example" -> {
+                    System.out.println("example");
+                }
+            }
         }
     }
 }

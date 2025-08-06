@@ -315,4 +315,11 @@ public class Messages {
         return TelegramData.getEditMessage(chatId,
                 "Выберите отчет который хотите сформировать:", Keyboards.starReport(), msgId);
     }
+
+    public static Object getSuccessReportResult(Long chatId, int msgId,String reportName, String link, String data) {
+        String t = "Ваш {rn} успешно записан в "
+                + LinkWrapper.wrapTextInLink("таблицу google sheets", link)
+                .replace("{rn}", reportName);
+        return TelegramData.getEditMessage(chatId, t, Keyboards.getSuccessReportResult(data), msgId);
+    }
 }

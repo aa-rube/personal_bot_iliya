@@ -222,4 +222,16 @@ public class Keyboards {
         );
     }
 
+    public static InlineKeyboardMarkup getSuccessReportResult(String data) {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Выбрать другие даты",
+                        "⏪ Назад"},
+
+                new String[]{
+                        data,
+                        "admin_menu"
+                }
+        );
+    }
 }
