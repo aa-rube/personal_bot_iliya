@@ -151,6 +151,14 @@ public class CallBackDataHandler {
                 userActionService.addUserAction(chatId, UserActionData.REQUEST_AWARD_NO);
             }
 
+
+            case "start_welcome_msg" -> {
+                msg.process(Messages.startEditWelcomeMessage(chatId, msgId));
+
+                userActionService.addUserAction(chatId, UserActionData.START_EDIT_WELCOME_MESSAGE);
+                return;
+            }
+
             case "watch_welcome_msg" -> {
                 int threadId = -1;
                 Object o = autoMessageService.getAutoMsg(chatId, null, null, threadId);
@@ -158,13 +166,6 @@ public class CallBackDataHandler {
                 msg.process(o);
 
                 userActionService.addUserAction(chatId, UserActionData.WATCHING_WELCOME_MESSAGE);
-                return;
-            }
-
-            case "start_welcome_msg" -> {
-                msg.process(Messages.startEditWelcomeMessage(chatId, msgId));
-
-                userActionService.addUserAction(chatId, UserActionData.START_EDIT_WELCOME_MESSAGE);
                 return;
             }
 
