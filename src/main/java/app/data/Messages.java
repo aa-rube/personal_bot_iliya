@@ -334,8 +334,8 @@ public class Messages {
 
     public static Object getSuccessReportResult(Long chatId, int msgId,String reportName, String link, String data) {
         String t = "Ваш {rn} успешно записан в "
-                + LinkWrapper.wrapTextInLink("таблицу google sheets", link)
-                .replace("{rn}", reportName);
+                + LinkWrapper.wrapTextInLink("таблицу google sheets", link);
+                t = t.replace("{rn}", reportName);
         return TelegramData.getEditMessage(chatId, t, Keyboards.getSuccessReportResult(data), msgId);
     }
 }
