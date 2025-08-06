@@ -1,6 +1,7 @@
 package app.bot.handler;
 
 import app.bot.api.CheckSubscribeToChannel;
+import app.bot.api.DateRangePickerService;
 import app.bot.api.MessagingService;
 import app.data.Messages;
 import app.config.AppConfig;
@@ -31,6 +32,8 @@ public class CallBackDataHandler {
     private final StateManager stateManager;
     private final UserService userService;
     private final UserActionService userActionService;
+    private final ChannelReportService channelReportService;
+    private final DateRangePickerService calendar;
 
     public CallBackDataHandler(@Lazy MessagingService msg,
                                AppConfig appConfig,
@@ -39,7 +42,11 @@ public class CallBackDataHandler {
                                ActivationService activationService,
                                BuildAutoMessageService autoMessageService,
                                RequestService requestService,
-                               StateManager stateManager, UserService userService, UserActionService userActionService
+                               StateManager stateManager,
+                               UserService userService,
+                               UserActionService userActionService,
+                               ChannelReportService channelReportService,
+                               DateRangePickerService calendar
     ) {
         this.appConfig = appConfig;
         this.msg = msg;
@@ -51,6 +58,8 @@ public class CallBackDataHandler {
         this.stateManager = stateManager;
         this.userService = userService;
         this.userActionService = userActionService;
+        this.channelReportService = channelReportService;
+        this.calendar = calendar;
     }
 
     public void updateHandler(Update update) {
@@ -187,6 +196,18 @@ public class CallBackDataHandler {
                 userActionService.addUserAction(chatId, UserActionData.WATCHING_UTM_LIST);
                 return;
             }
+
+            case "reports" -> {
+                msg.process(Messages.starReport(chatId, msgId));
+                return;
+            }
+
+            case "sub_unsub" -> {
+                stateManager.setStatus(chatId, data);
+                calendar.start(chatId, msgId);
+
+                return;
+            }
         }
 
         if (data.startsWith("areYouOk?")) {
@@ -216,6 +237,10 @@ public class CallBackDataHandler {
                     userActionService.addUserAction(chatId, UserActionData.ARE_YOU_OK_WAIT);
                 }
             }
+        }
+
+        if (data.startsWith("ft:")) {
+            calendar.handle(chatId, msgId, data);
         }
     }
 }

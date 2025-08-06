@@ -250,9 +250,11 @@ public class Messages {
         return TelegramData.getEditMessage(chatId, s, Keyboards.mainKb(Long.parseLong(bb)), msgId);
     }
 
-    public static Object emptyWelcome(Long chatId) {
-        return new SendMessage(String.valueOf(chatId), "Еще не задано ни одного сообщения");
+    public static SendMessage userShareContact(Long logChat) {
+        return new SendMessage(String.valueOf(logChat),
+                "Пользователь запросил помощи и поделился контактом");
     }
+
 
 
     //admins message
@@ -275,6 +277,10 @@ public class Messages {
         return TelegramData.getSendMessage(chatId,
                 "Введите текст нового сообщение для приветствия. \n\nМожно использовать все типы форматирования телеграм кроме премиум emoji",
                 Keyboards.cancelInputNewWelcomeText());
+    }
+
+    public static Object emptyWelcome(Long chatId) {
+        return new SendMessage(String.valueOf(chatId), "Еще не задано ни одного сообщения");
     }
 
     public static Object startEditUtm(Long chatId, int msgId) {
@@ -305,8 +311,8 @@ public class Messages {
         return TelegramData.getSendMessage(chatId, b.toString(),null);
     }
 
-    public static SendMessage userShareContact(Long logChat) {
-        return new SendMessage(String.valueOf(logChat),
-                "Пользователь запросил помощи и поделился контактом");
+    public static Object starReport(Long chatId, int msgId) {
+        return TelegramData.getEditMessage(chatId,
+                "Выберите отчет который хотите сформировать:", Keyboards.starReport(), msgId);
     }
 }

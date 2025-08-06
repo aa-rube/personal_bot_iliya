@@ -120,11 +120,14 @@ public class Keyboards {
                 new String[]{
                         "UTM-метки",
                         "Приветственное сообщение",
+                        "Отчеты",
                         "⏪ Назад"
                 },
+
                 new String[]{
                         "start_utm",
                         "start_welcome_msg",
+                        "reports",
                         "main_menu"
                 }
         );
@@ -202,6 +205,19 @@ public class Keyboards {
                 new String[]{
                         "list_utm",
                         "start_utm"
+                }
+        );
+    }
+
+    public static InlineKeyboardMarkup starReport() {
+        return TelegramData.createInlineKeyboardColumn(
+                new String[]{
+                        "Отчет по подпискам",
+                        "⏪ Назад"},
+
+                new String[]{
+                        "sub_unsub",
+                        "admin_menu"
                 }
         );
     }

@@ -73,8 +73,9 @@ public class TextMsgHandler {
             return;
         }
 
-        if (subscribe.hasNotSubscription(update, chatId, -1, false)) return;
-
+        if (!text.contains("/start ")) {
+            if (subscribe.hasNotSubscription(update, chatId, -1, false)) return;
+        }
 
         boolean ue = userService.existsById(chatId);
         if (text.equals("/start")) {
@@ -104,6 +105,7 @@ public class TextMsgHandler {
                     int c = referralService.updateRefUserWithCount(chatId, ref);
 
                     userService.saveUser(update, chatId, ref);
+                    userActionService.addUserAction(chatId, UserActionData.USER_SAVED);
 
                     if (c > 100) {
                         msg.process(Messages.overInviteLimitForAdmin(appConfig.getLogChat()));
@@ -120,6 +122,8 @@ public class TextMsgHandler {
 
                     userActionService.addUserAction(chatId, UserActionData.THE_USER_GET_NEW_REFERRAL);
                 }
+
+                subscribe.hasNotSubscription(update, chatId, -1, false);
                 return;
             } catch (Exception e) {
                 log.error("new referral exception: {}", e.getMessage());
