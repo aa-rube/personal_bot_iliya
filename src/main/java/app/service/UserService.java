@@ -92,8 +92,8 @@ public class UserService {
             log.info("Загружено {} пользователей", users.size());
 
             final long now = System.currentTimeMillis();
-            final long threeHoursAgo = now - TimeUnit.HOURS.toMillis(3); // тестовый
-            final long fortyEightHoursAgo = now - TimeUnit.DAYS.toMillis(2); // тестовый
+            final long threeHoursAgo = now - TimeUnit.SECONDS.toMillis(3); // тестовый
+            final long fortyEightHoursAgo = now - TimeUnit.SECONDS.toMillis(2); // тестовый
 
             processActiveUsers(partnerList, users, threeHoursAgo, now);
             processInactiveUsers(partnerList, users, fortyEightHoursAgo, now);
