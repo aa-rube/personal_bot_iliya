@@ -29,7 +29,7 @@ public class User {
     private LocalDate firstSeen;
     private LocalDate lastAction;
 
-
+    private Long warnedAt;
     private boolean isActive;
     private long lastSubscribeChecked;
     private boolean isKickUserFromChat;

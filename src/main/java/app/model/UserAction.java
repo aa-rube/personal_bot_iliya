@@ -24,7 +24,7 @@ public class UserAction {
     public UserAction(Long userId, UserActionData userActionData) {
         this.userId = userId;
         this.timestamp = System.currentTimeMillis();
-        this.utcTimestamp = Instant.EPOCH.toEpochMilli();
+        this.utcTimestamp = Instant.now().toEpochMilli();
         this.localDateTime = LocalDateTime.now();
         this.userActionData = userActionData;
     }

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class UserService {
@@ -51,7 +52,7 @@ public class UserService {
         this.userActionService = userActionService;
     }
 
-    private volatile boolean isRunning = false;
+    private volatile AtomicBoolean isRunning = new AtomicBoolean(false);
 
     public void saveUser(Update update, Long chatId, Long ref) {
         repo.save(new User(update, chatId, ref));
@@ -75,14 +76,14 @@ public class UserService {
         return repo.existsById(chatId);
     }
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 60000)
     public void subscribeChecking() {
-        if (isRunning) {
+        if (isRunning.get()) {
             log.warn("Проверка подписок уже выполняется, пропускаем");
             return;
         }
 
-        isRunning = true;
+        isRunning.set(true);
         try {
             log.info("Начинаем проверку подписок");
 
@@ -93,15 +94,15 @@ public class UserService {
             log.info("Загружено {} пользователей", users.size());
 
             final long now = System.currentTimeMillis();
-            final long threeHoursAgo = now - TimeUnit.HOURS.toMillis(3);
-            final long fortyEightHoursAgo = now - TimeUnit.DAYS.toMillis(2);
+            final long threeHoursAgo = now - TimeUnit.HOURS.toMillis(3); // тестовый
+            final long fortyEightHoursAgo = now - TimeUnit.DAYS.toMillis(2); // тестовый
 
             processActiveUsers(partnerList, users, threeHoursAgo, now);
             processInactiveUsers(partnerList, users, fortyEightHoursAgo, now);
 
             log.info("Проверка подписок завершена");
         } finally {
-            isRunning = false;
+            isRunning.set(false);
         }
     }
 
@@ -109,54 +110,72 @@ public class UserService {
         for (User user : users) {
             if (user.isActive() && threeHoursAgo > user.getLastSubscribeChecked()) {
 
-                log.info("Проверяем пользователя: {}", user.getChatId());
-                Map<Partner, Boolean> result = checkSubscription(user.getChatId(), partnerList);
-                boolean notActive = result != null;
+                log.info("Проверяем активного пользователя: {}", user.getChatId());
+
+                Map<Partner, Boolean> result = checkSubscribeToChannel.checkList(user.getChatId(), partnerList);
+                boolean notActive = result.containsValue(false);
 
                 if (notActive) {
-                    log.warn("Пользователь {} неактивен", user.getChatId());
-                    msg.process(Messages.leftUser(user.getChatId(), result));
-                    userActionService.addUserAction(user.getChatId(), UserActionData.LEFT_PUBLIC_CHANNEL);
+                    // Уведомляем только один раз
+                    if (user.getWarnedAt() == null) {
+                        log.warn("Пользователь {} отписался — отправляем предупреждение", user.getChatId());
+                        msg.process(Messages.leftUser(user.getChatId(), result));
+                        user.setWarnedAt(now);
+                        userActionService.addUserAction(user.getChatId(), UserActionData.LEFT_PUBLIC_CHANNEL);
+                    }
+                    user.setActive(false);
+                } else {
+                    // Подписан на всех — сброс предупреждения
+                    if (!user.isActive()) {
+                        log.info("Пользователь {} снова подписан — возвращаем в активные", user.getChatId());
+                        userActionService.addUserAction(user.getChatId(), UserActionData.RETURN_PUBLIC_CHANNEL_48H);
+                    }
+                    user.setActive(true);
+                    user.setWarnedAt(null);
                 }
 
-                user.setActive(false);
                 user.setLastSubscribeChecked(now);
                 repo.save(user);
-
-                Sleep.sleepSafely(3000);
+                Sleep.sleepSafely(100); // антифлуд
             }
         }
     }
 
     private void processInactiveUsers(List<Partner> partnerList, List<User> users, long fortyEightHoursAgo, long now) {
         for (User user : users) {
+            if (!user.isKickUserFromChat()
+                    && !user.isActive()
+                    && user.getWarnedAt() != null
+                    && user.getWarnedAt() < fortyEightHoursAgo) {
 
-            if (!user.isKickUserFromChat() && !user.isActive() && fortyEightHoursAgo > user.getLastSubscribeChecked()) {
+                log.info("Проверка для удаления: {}", user.getChatId());
 
-                log.info("Проверка для исключения: {}", user.getChatId());
-                Map<Partner, Boolean> result = checkSubscription(user.getChatId(), partnerList);
-                boolean notActive = result != null;
+                Map<Partner, Boolean> result = checkSubscribeToChannel.checkList(user.getChatId(), partnerList);
+                boolean notActive = result.containsValue(false);
 
                 if (notActive) {
-                    log.warn("Исключаем пользователя: {}", user.getChatId());
+                    log.warn("Удаляем пользователя из приватного канала: {}", user.getChatId());
                     msg.process(Messages.kickUserFromChat(user.getChatId(), appConfig.getBotPrivateChannel()));
                     user.setKickUserFromChat(true);
-                    user.setLastSubscribeChecked(now + TimeUnit.DAYS.toMillis(100000));
-                    Sleep.sleepSafely(3000);
-
                     userActionService.addUserAction(user.getChatId(), UserActionData.REMOVE_PRIVATE_CHANNEL_48H);
-                } else {
-                    user.setActive(true); // Возвращаем в активные
-                    user.setLastSubscribeChecked(now);
 
+                    // Защита от повторной проверки
+                    user.setLastSubscribeChecked(now + TimeUnit.DAYS.toMillis(100000));
+                } else {
+                    log.info("Пользователь {} снова подписан — возвращаем в активные", user.getChatId());
+                    user.setActive(true);
+                    user.setWarnedAt(null);
                     userActionService.addUserAction(user.getChatId(), UserActionData.RETURN_PUBLIC_CHANNEL_48H);
+                    user.setLastSubscribeChecked(now);
                 }
 
                 repo.save(user);
-                Sleep.sleepSafely(3000);
+                Sleep.sleepSafely(100); // антифлуд
             }
         }
     }
+
+
 
     private Map<Partner, Boolean> checkSubscription(Long chatId, List<Partner> partnerList) {
         Map<Partner, Boolean> results = checkSubscribeToChannel.checkList(chatId, partnerList);

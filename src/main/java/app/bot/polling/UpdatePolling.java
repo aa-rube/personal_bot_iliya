@@ -50,17 +50,18 @@ public class UpdatePolling extends TelegramLongPollingBot {
         }
 
         if (update.hasMessage() && update.getMessage().getLeftChatMember() != null) {
-                e.execute(() ->  {
-                    Long chatId = update.getMessage().getChatId();
-                    try {
-                        execute(new DeleteMessage(String.valueOf(chatId),
-                                update.getMessage().getMessageId()));
-                    } catch (TelegramApiException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    textMsgHandler.leftMember(chatId);
+            e.execute(() -> {
+                Long chatId = update.getMessage().getChatId();
+                try {
+                    execute(new DeleteMessage(String.valueOf(chatId),
+                            update.getMessage().getMessageId()));
+                } catch (TelegramApiException ex) {
+                    throw new RuntimeException(ex);
+                }
+                textMsgHandler.leftMember(chatId);
             });
-                return;
+            log.error("User left success");
+            return;
         }
 
         //ожидаем пользователя в приватном канале
