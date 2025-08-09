@@ -73,21 +73,20 @@ public class TextMsgHandler {
             return;
         }
 
+        boolean ue = userService.existsById(chatId);
+        if (!text.startsWith("/start ") && !ue) {
+            userService.saveUser(update, chatId, 0L);
+            userActionService.addUserAction(chatId, UserActionData.USER_SAVED);
+        }
+
         if (!text.contains("/start ")) {
             if (subscribe.hasNotSubscription(update, chatId, -1, false)) return;
         }
 
-        boolean ue = userService.existsById(chatId);
         if (text.equals("/start")) {
-            if (!ue) {
-                userService.saveUser(update, chatId, 0L);
-                userActionService.addUserAction(chatId, UserActionData.USER_SAVED);
-            }
-
             Map<String, String> m = referralService.getUsrLevel(chatId);
             boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
             msg.process(Messages.mainMenu(chatId, -1, pc, m));
-
             userActionService.addUserAction(chatId, UserActionData.USER_HAD_START_SUCCESS);
             return;
         }
