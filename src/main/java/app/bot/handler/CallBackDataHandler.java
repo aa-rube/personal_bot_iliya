@@ -9,6 +9,7 @@ import app.data.UserActionData;
 import app.model.Activation;
 import app.model.User;
 import app.service.*;
+import app.util.UpdateNameExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -84,7 +85,7 @@ public class CallBackDataHandler {
                 userActionService.addUserAction(chatId, UserActionData.INITIAL_SUBSCRIBE_CHECK);
 
                 if (!subscribe.hasNotSubscription(update, chatId, msgId, true)) {
-                    activationService.save(new Activation(chatId, Activation.Step.SECOND));
+                    activationService.save(new Activation(chatId, Activation.Step.SECOND, UpdateNameExtractor.extractUserName(update)));
                     userActionService.addUserAction(chatId, UserActionData.CHECK_SUBSCRIBE_SUCCESS);
                 }
                 userActionService.addUserAction(chatId, UserActionData.CHECK_SUBSCRIBE_FAIL);
@@ -119,7 +120,7 @@ public class CallBackDataHandler {
                 int i = msg.processMessageReturnMsgId(Messages.share(chatId, m));
                 msg.process(new PinChatMessage(String.valueOf(chatId), i));
 
-                activationService.save(new Activation(chatId, Activation.Step.FIRST));
+                activationService.save(new Activation(chatId, Activation.Step.FIRST, UpdateNameExtractor.extractUserName(update)));
                 userActionService.addUserAction(chatId, UserActionData.OPEN_SHARE);
                 return;
             }

@@ -16,6 +16,7 @@ public class Activation {
     @Id
     private Long userId;
 
+    private String handle;
     /**
      * Текущий шаг сценария (см. enum Step)
      */
@@ -26,8 +27,9 @@ public class Activation {
      */
     private long nextSendAt;
 
-    public Activation(Long userId, Step step) {
+    public Activation(Long userId, Step step, String handle) {
         this.userId = userId;
+        this.handle = handle;
         this.step = Step.FIRST.code;
         this.nextSendAt = step.delayAfterStart().toMillis() + System.currentTimeMillis();
     }
