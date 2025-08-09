@@ -155,7 +155,7 @@ public class UserService {
 
                 if (notActive) {
                     log.warn("Удаляем пользователя из приватного канала: {}", user.getChatId());
-                    msg.process(Messages.kickUserFromChat(user.getChatId(), appConfig.getBotPrivateChannel()));
+                    msg.process(Messages.kickUserFromChat(user.getChatId(), -1002317608626L));
                     user.setKickUserFromChat(true);
                     userActionService.addUserAction(user.getChatId(), UserActionData.REMOVE_PRIVATE_CHANNEL_48H);
 
@@ -173,13 +173,6 @@ public class UserService {
                 Sleep.sleepSafely(100); // антифлуд
             }
         }
-    }
-
-
-
-    private Map<Partner, Boolean> checkSubscription(Long chatId, List<Partner> partnerList) {
-        Map<Partner, Boolean> results = checkSubscribeToChannel.checkList(chatId, partnerList);
-        return !results.containsValue(false) ? null : results;
     }
 
     public void userNeedToBeChecked(Long chatId) {
