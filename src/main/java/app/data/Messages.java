@@ -9,6 +9,10 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMem
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -244,12 +248,43 @@ public class Messages {
         return TelegramData.getSendMessage(chatId, t, Keyboards.subscribe(partners));
     }
 
-    public static Object kickUserFromChat(Long chatId, Long userId) {
-        BanChatMember b = new BanChatMember();
-        b.setChatId(chatId);
-        b.setUserId(userId);
-        b.setUntilDateDateTime(ZonedDateTime.now().plusYears(100));
-        return b;
+    public static void banUser(String botToken, long chatId, long userId) {
+        try {
+            // URL запроса
+            String urlStr = "https://api.telegram.org/bot" + botToken + "/banChatMember";
+            URL url = new URL(urlStr);
+
+            // Дата окончания бана (100 лет вперёд)
+            long untilDate = System.currentTimeMillis() / 1000L + (100L * 365 * 24 * 60 * 60);
+
+            // JSON тело запроса
+            String json = String.format(
+                    "{\"chat_id\": %d, \"user_id\": %d, \"until_date\": %d}",
+                    chatId, userId, untilDate
+            );
+
+            // Настройка соединения
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            // Отправка JSON
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = json.getBytes(StandardCharsets.UTF_8);
+                os.write(input);
+            }
+
+            // Чтение ответа
+            int responseCode = conn.getResponseCode();
+            System.out.println("HTTP Response Code: " + responseCode);
+
+            conn.getInputStream().transferTo(System.out);
+            conn.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static Object popAward(Long chatId, int msgId, Map<String, String> m) {

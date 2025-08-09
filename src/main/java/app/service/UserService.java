@@ -28,6 +28,7 @@ public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
+    private final AppConfig appConfig;
     private final UserRepository repo;
     private final MessagingService msg;
     private final PartnersRepository partners;
@@ -43,6 +44,7 @@ public class UserService {
                        UserActionService userActionService
 
     ) {
+        this.appConfig = appConfig;
         this.partners = partners;
         this.msg = msg;
         this.repo = userRepository;
@@ -153,7 +155,7 @@ public class UserService {
 
                 if (notActive) {
                     log.warn("Удаляем пользователя из приватного канала: {}", user.getChatId());
-                    msg.process(Messages.kickUserFromChat(user.getChatId(), -1002317608626L));
+                    Messages.banUser(appConfig.getToken(), -1002317608626L, user.getChatId());
                     user.setKickUserFromChat(true);
                     userActionService.addUserAction(user.getChatId(), UserActionData.REMOVE_PRIVATE_CHANNEL_48H);
 
