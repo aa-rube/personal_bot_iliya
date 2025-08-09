@@ -45,8 +45,6 @@ public class User {
         this.firstSeen = LocalDate.now();
         this.lastAction = LocalDate.now();
 
-        this.warnedAt = 0L;
-
         this.lastSubscribeChecked = System.currentTimeMillis();
         this.isActive = true;
         this.isKickUserFromChat = false;

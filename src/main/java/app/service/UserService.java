@@ -127,7 +127,7 @@ public class UserService {
                 } else {
                     // Подписан на всех — сброс предупреждения
                     if (!user.isActive()) {
-                        log.info("Пользователь {} снова подписан — возвращаем в активные", user.getChatId());
+                        log.info("Пользователь {} снова подписан — возвращаем в активные()()", user.getChatId());
                         userActionService.addUserAction(user.getChatId(), UserActionData.RETURN_PUBLIC_CHANNEL_48H);
                     }
                     user.setActive(true);
@@ -136,7 +136,7 @@ public class UserService {
 
                 user.setLastSubscribeChecked(now);
                 repo.save(user);
-                Sleep.sleepSafely(100); // антифлуд
+                Sleep.sleepSafely(300);
             }
         }
     }
