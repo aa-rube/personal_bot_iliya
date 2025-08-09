@@ -28,7 +28,6 @@ public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final AppConfig appConfig;
     private final UserRepository repo;
     private final MessagingService msg;
     private final PartnersRepository partners;
@@ -44,7 +43,6 @@ public class UserService {
                        UserActionService userActionService
 
     ) {
-        this.appConfig = appConfig;
         this.partners = partners;
         this.msg = msg;
         this.repo = userRepository;
@@ -94,8 +92,8 @@ public class UserService {
             log.info("Загружено {} пользователей", users.size());
 
             final long now = System.currentTimeMillis();
-            final long threeHoursAgo = now - TimeUnit.SECONDS.toMillis(3); // тестовый
-            final long fortyEightHoursAgo = now - TimeUnit.SECONDS.toMillis(2); // тестовый
+            final long threeHoursAgo = now - TimeUnit.HOURS.toMillis(3); // тестовый
+            final long fortyEightHoursAgo = now - TimeUnit.DAYS.toMillis(2); // тестовый
 
             processActiveUsers(partnerList, users, threeHoursAgo, now);
             processInactiveUsers(partnerList, users, fortyEightHoursAgo, now);
