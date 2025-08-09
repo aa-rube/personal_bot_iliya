@@ -60,7 +60,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
                 }
                 textMsgHandler.leftMember(chatId);
             });
-            log.error("User left success");
+            log.info("User left success");
             return;
         }
 
