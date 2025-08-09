@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.BanChatMem
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -244,10 +245,11 @@ public class Messages {
     }
 
     public static Object kickUserFromChat(Long chatId, Long userId) {
-        BanChatMember banRequest = new BanChatMember();
-        banRequest.setChatId(chatId.toString());
-        banRequest.setUserId(userId);
-        return banRequest;
+        BanChatMember b = new BanChatMember();
+        b.setChatId(chatId);
+        b.setUserId(userId);
+        b.setUntilDateDateTime(ZonedDateTime.now().plusYears(100));
+        return b;
     }
 
     public static Object popAward(Long chatId, int msgId, Map<String, String> m) {
