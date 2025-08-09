@@ -61,6 +61,8 @@ public class TextMsgHandler {
         Long chatId = update.getMessage().getChatId();
         int msgId = update.getMessage().getMessageId();
 
+        if (chatId < 0) return;
+
         log.info("msgId: {}, chatId: {}, text: {}", msgId, chatId, text);
         if (chatId.equals(appConfig.getLogChat())) return;
 
