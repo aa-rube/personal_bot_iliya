@@ -162,4 +162,23 @@ public class UserService {
         Map<Partner, Boolean> results = checkSubscribeToChannel.checkList(chatId, partnerList);
         return !results.containsValue(false) ? null : results;
     }
+
+    public void userNeedToBeChecked(Long chatId) {
+        Optional<User> uO = repo.findById(chatId);
+        if (uO.isPresent()) {
+            User u = uO.get();
+            u.setLastSubscribeChecked(System.currentTimeMillis() - 100000);
+            u.setKickUserFromChat(false);
+            u.setActive(true);
+        }
+    }
+
+    public void userLeftPublicChannel(Long chatId) {
+        Optional<User> uO = repo.findById(chatId);
+        if (uO.isPresent()) {
+            User u = uO.get();
+            u.setKickUserFromChat(true);
+            u.setLastSubscribeChecked(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(100000));
+        }
+    }
 }

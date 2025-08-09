@@ -166,6 +166,12 @@ public class TextMsgHandler {
         int welcomeMessageId = msg.processMessageReturnMsgId(autoMessageService.getAutoMsg(chatId, update, u, threadId));
         welcome.save(chatId, welcomeMessageId);
 
+        userService.userNeedToBeChecked(chatId);
         userActionService.addUserAction(chatId, UserActionData.JOIN_PRIVATE_CHANNEL);
+    }
+
+    public void leftMember(Long chatId) {
+        userService.userLeftPublicChannel(chatId);
+        userActionService.addUserAction(chatId, UserActionData.LEFT_PUBLIC_CHANNEL);
     }
 }

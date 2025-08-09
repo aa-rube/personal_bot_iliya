@@ -16,6 +16,9 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class UpdatePolling extends TelegramLongPollingBot {
     private final TextMsgHandler textMsgHandler;
     private final CallBackDataHandler callBackDataHandler;
     private final UserActionService userActionService;
+    private final ExecutorService e = Executors.newFixedThreadPool(10);
 
     @Override
     public String getBotUsername() {
@@ -46,14 +50,17 @@ public class UpdatePolling extends TelegramLongPollingBot {
         }
 
         if (update.hasMessage() && update.getMessage().getLeftChatMember() != null) {
-            try {
-                execute(new DeleteMessage(String.valueOf(update.getMessage().getChatId()),
-                        update.getMessage().getMessageId()));
-                userActionService.addUserAction(update.getMessage().getChatId(), UserActionData.LEFT_PRIVATE_CHANNEL);
+                e.execute(() ->  {
+                    Long chatId = update.getMessage().getChatId();
+                    try {
+                        execute(new DeleteMessage(String.valueOf(chatId),
+                                update.getMessage().getMessageId()));
+                    } catch (TelegramApiException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    textMsgHandler.leftMember(chatId);
+            });
                 return;
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
         }
 
         //ожидаем пользователя в приватном канале
