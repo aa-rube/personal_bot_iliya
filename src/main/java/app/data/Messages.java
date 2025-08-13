@@ -110,7 +110,7 @@ public class Messages {
                 {link}
                 """.replace("{link}", link);
         long b = Long.parseLong(m.getOrDefault("b", "0"));
-        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKbNewMessage(b, pc));
+        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKbNewMessage(b, !pc));
     }
 
     public static Object spendBolls(Long chatId, int msgId, Map<String, String> m) {

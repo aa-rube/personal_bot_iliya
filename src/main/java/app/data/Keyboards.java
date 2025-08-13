@@ -33,6 +33,28 @@ public class Keyboards {
         );
     }
 
+
+    public static InlineKeyboardMarkup mainKbNewMessage(Long b, boolean invitePrivateChat) {
+        return TelegramData.createInlineKeyboardColumn(
+                List.of(
+                        (invitePrivateChat ? "Вступайте в закрытый чат ⚡" : "skip"),
+                        "\uD83C\uDF81 Мои баллы",
+                        "\uD83D\uDC65 Пригласить друзей",
+                        "\uD83D\uDECD Потратить баллы",
+                        "\uD83D\uDCC5 Бесплатная {b}/100".replace("{b}", String.valueOf(b)),
+                        "\uD83D\uDCAC Платная консультация"
+                ),
+                List.of(
+                        (invitePrivateChat ? "https://t.me/+R_7xy_8KZ244Y2Qx" : "skip"),
+                        "my_bolls_",
+                        "share_",
+                        "spend_bolls_",
+                        "award_" + (b < 100 ? "no_" : "yes_"),
+                        "https://t.me/MoneyBaires"
+                )
+        );
+    }
+
     public static InlineKeyboardMarkup mainKb(long b, boolean invitePrivateChat) {
         return TelegramData.createInlineKeyboardColumn(
                 List.of(
@@ -95,28 +117,6 @@ public class Keyboards {
         keyboardMarkup.setResizeKeyboard(true);
         return keyboardMarkup;
     }
-
-    public static InlineKeyboardMarkup mainKbNewMessage(Long b, boolean invitePrivateChat) {
-        return TelegramData.createInlineKeyboardColumn(
-                List.of(
-                        (invitePrivateChat ? "Вступайте в закрытый чат ⚡" : "skip"),
-                        "\uD83C\uDF81 Мои баллы",
-                        "\uD83D\uDC65 Пригласить друзей",
-                        "\uD83D\uDECD Потратить баллы",
-                        "\uD83D\uDCC5 Бесплатная {b}/100".replace("{b}", String.valueOf(b)),
-                        "\uD83D\uDCAC Платная консультация"
-                ),
-                List.of(
-                        (invitePrivateChat ? "https://t.me/+R_7xy_8KZ244Y2Qx" : "skip"),
-                        "my_bolls_",
-                        "share_",
-                        "spend_bolls_",
-                        "award_" + (b < 100 ? "no_" : "yes_"),
-                        "https://t.me/MoneyBaires"
-                )
-        );
-    }
-
 
     //admins keyboards
     public static InlineKeyboardMarkup adminPanel() {
