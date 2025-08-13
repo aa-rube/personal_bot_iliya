@@ -85,13 +85,13 @@ public class UserService {
 
         isRunning.set(true);
         try {
-            log.info("Начинаем проверку подписок");
+            log.debug("Начинаем проверку подписок");
 
             List<Partner> partnerList = partners.findAll();
             List<User> users = repo.findAll();
 
-            log.info("Загружено {} партнеров", partnerList.size());
-            log.info("Загружено {} пользователей", users.size());
+            log.debug("Загружено {} партнеров", partnerList.size());
+            log.debug("Загружено {} пользователей", users.size());
 
             final long now = System.currentTimeMillis();
             final long threeHoursAgo = now - TimeUnit.HOURS.toMillis(3); // тестовый
@@ -100,7 +100,7 @@ public class UserService {
             processActiveUsers(partnerList, users, threeHoursAgo, now);
             processInactiveUsers(partnerList, users, fortyEightHoursAgo, now);
 
-            log.info("Проверка подписок завершена");
+            log.debug("Проверка подписок завершена");
         } finally {
             isRunning.set(false);
         }
@@ -108,6 +108,7 @@ public class UserService {
 
     private void processActiveUsers(List<Partner> partnerList, List<User> users, long threeHoursAgo, long now) {
         for (User user : users) {
+
             if (user.isActive() && threeHoursAgo > user.getLastSubscribeChecked()) {
 
                 log.info("Проверяем активного пользователя: {}", user.getChatId());

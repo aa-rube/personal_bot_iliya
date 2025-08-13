@@ -99,7 +99,7 @@ public class TextMsgHandler {
                 Long ref = ExtractReferralIdFromStartCommand.extract(text);
                 if (ref < 1000 && ref > 0) {
                     utmVisitService.save(ref, chatId);
-                    return;
+//                    return;
                 }
 
                 if (!ue) {
