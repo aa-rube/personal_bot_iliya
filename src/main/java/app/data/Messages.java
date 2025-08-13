@@ -95,7 +95,7 @@ public class Messages {
                 : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b, !pc), msgId);
     }
 
-    public static Object share(Long chatId, Map<String, String> m) {
+    public static Object share(Long chatId, Map<String, String> m, boolean pc) {
         String link = "https://t.me/UstanovkaChatGPTbot?start=" + chatId;
         String text = """
                 Твоя жизнь уже стала проще и эффективнее с нейросетями?
@@ -110,7 +110,7 @@ public class Messages {
                 {link}
                 """.replace("{link}", link);
         long b = Long.parseLong(m.getOrDefault("b", "0"));
-        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKbNewMessage(b));
+        return TelegramData.getSendMessage(chatId, text, Keyboards.mainKbNewMessage(b, pc));
     }
 
     public static Object spendBolls(Long chatId, int msgId, Map<String, String> m) {

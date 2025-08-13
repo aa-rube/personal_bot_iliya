@@ -117,8 +117,9 @@ public class CallBackDataHandler {
 
             case "share", "share_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
+                boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
 
-                int i = msg.processMessageReturnMsgId(Messages.share(chatId, m));
+                int i = msg.processMessageReturnMsgId(Messages.share(chatId, m, pc));
                 msg.process(new PinChatMessage(String.valueOf(chatId), i));
 
                 activationService.save(new Activation(chatId, Activation.Step.FIRST, UpdateNameExtractor.extractUserName(update)));
