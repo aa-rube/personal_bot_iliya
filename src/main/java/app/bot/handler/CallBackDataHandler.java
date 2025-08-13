@@ -109,7 +109,8 @@ public class CallBackDataHandler {
             case "my_bolls", "my_bolls_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
                 msgId = data.contains("s_") ? -1 : msgId;
-                msg.process(Messages.myBolls(chatId, msgId, m));
+                boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
+                msg.process(Messages.myBolls(chatId, msgId, m, pc));
                 userActionService.addUserAction(chatId, UserActionData.OPEN_MY_BOLLS);
                 return;
             }
@@ -147,7 +148,9 @@ public class CallBackDataHandler {
 
             case "award_no", "award_no_" -> {
                 Map<String, String> m = referralService.getUsrLevel(chatId);
-                msg.process(Messages.popAward(chatId,msgId, m));
+
+                boolean pc = subscribe.checkUserPartner(chatId, appConfig.getBotPrivateChannel());
+                msg.process(Messages.popAward(chatId,msgId, m, pc));
 
                 userActionService.addUserAction(chatId, UserActionData.REQUEST_AWARD_NO);
             }

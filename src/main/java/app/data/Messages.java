@@ -74,11 +74,11 @@ public class Messages {
                             + ", приглашайте друзей - получайте максимум возможностей!");
         }
 
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b)) :
-                TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b, !pc)) :
+                TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b, !pc), msgId);
     }
 
-    public static Object myBolls(Long chatId, int msgId, Map<String, String> userData) {
+    public static Object myBolls(Long chatId, int msgId, Map<String, String> userData, boolean pc) {
         String text = """
                 {l}
                 
@@ -91,8 +91,8 @@ public class Messages {
                 .replace("{l1}", userData.getOrDefault("l1", "0"))
                 .replace("{l2}", userData.getOrDefault("l2", "0"));
         long b = Long.parseLong(userData.getOrDefault("b", "0"));
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b))
-                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b, !pc))
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b, !pc), msgId);
     }
 
     public static Object share(Long chatId, Map<String, String> m) {
@@ -169,8 +169,8 @@ public class Messages {
                 """
                 .replace("{link}", LinkWrapper.wrapTextInLink("закрытый клуб", "https://t.me/+R_7xy_8KZ244Y2Qx"));
         long b = Long.parseLong(m.getOrDefault("b", "0"));
-        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b))
-                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b), msgId);
+        return msgId < 0 ? TelegramData.getSendMessage(chatId, text, Keyboards.mainKb(b, true))
+                : TelegramData.getEditMessage(chatId, text, Keyboards.mainKb(b, true), msgId);
     }
 
     public static Object adminNotificationAward(Long chatId, Long userId, int msgId) {
@@ -278,7 +278,7 @@ public class Messages {
         }
     }
 
-    public static Object popAward(Long chatId, int msgId, Map<String, String> m) {
+    public static Object popAward(Long chatId, int msgId, Map<String, String> m, boolean pc) {
         String bb = m.getOrDefault("b", "0");
         String s = """
                 Для бесплатной консультации нужно 100 баллов, у вас сейчас {b}.
@@ -286,7 +286,7 @@ public class Messages {
                 Можно продолжить приглашать друзей или выбрать платную консультацию по ссылке ниже
                 """
                 .replace("{b}", bb);
-        return TelegramData.getEditMessage(chatId, s, Keyboards.mainKb(Long.parseLong(bb)), msgId);
+        return TelegramData.getEditMessage(chatId, s, Keyboards.mainKb(Long.parseLong(bb), pc), msgId);
     }
 
     public static SendMessage userShareContact(Long logChat) {

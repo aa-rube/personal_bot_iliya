@@ -187,6 +187,40 @@ public class TelegramData {
         return inLineKeyBoard;
     }
 
+    public static InlineKeyboardMarkup createInlineKeyboardColumn(List<String> buttonTexts, List<String> callbackData) {
+        InlineKeyboardMarkup inLineKeyBoard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboardMatrix = new ArrayList<>();
+
+        for (int i = 0; i < buttonTexts.size(); i++) {
+
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            InlineKeyboardButton btn = new InlineKeyboardButton();
+
+            String name = buttonTexts.get(i);
+            if(name.equals("skip")) continue;
+
+            btn.setText(name);
+
+            String callBack = callbackData.get(i);
+
+            if (callBack.contains("http")) {
+                btn.setUrl(callBack);
+
+            } else if(callBack.split(" ").length > 5) {
+                btn.setSwitchInlineQueryCurrentChat(callBack);
+            } else {
+                btn.setCallbackData(callBack);
+            }
+
+            row.add(btn);
+            keyboardMatrix.add(row);
+        }
+
+        inLineKeyBoard.setKeyboard(keyboardMatrix);
+        return inLineKeyBoard;
+    }
+
+
     public static InlineKeyboardMarkup createInlineKeyboardColumnThreeBtn(String[] buttonTexts, String[] callbackData) {
         InlineKeyboardMarkup inLineKeyBoard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboardMatrix = new ArrayList<>();
