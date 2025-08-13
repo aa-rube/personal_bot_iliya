@@ -87,7 +87,7 @@ public class Keyboards {
         List<KeyboardRow> keyboard = new ArrayList<>();
         KeyboardRow row1 = new KeyboardRow();
 
-        KeyboardButton contactButton = new KeyboardButton("Личная консультация");
+        KeyboardButton contactButton = new KeyboardButton("Запросить личную консультацию");
         contactButton.setRequestContact(true);
         row1.add(contactButton);
         keyboard.add(row1);
@@ -96,22 +96,24 @@ public class Keyboards {
         return keyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup mainKbNewMessage(Long b) {
+    public static InlineKeyboardMarkup mainKbNewMessage(Long b, boolean invitePrivateChat) {
         return TelegramData.createInlineKeyboardColumn(
-                new String[]{
+                List.of(
+                        (invitePrivateChat ? "Вступайте в закрытый чат ⚡" : "skip"),
                         "\uD83C\uDF81 Мои баллы",
                         "\uD83D\uDC65 Пригласить друзей",
                         "\uD83D\uDECD Потратить баллы",
                         "\uD83D\uDCC5 Бесплатная {b}/100".replace("{b}", String.valueOf(b)),
                         "\uD83D\uDCAC Платная консультация"
-                },
-                new String[]{
+                ),
+                List.of(
+                        (invitePrivateChat ? "https://t.me/+R_7xy_8KZ244Y2Qx" : "skip"),
                         "my_bolls_",
                         "share_",
                         "spend_bolls_",
                         "award_" + (b < 100 ? "no_" : "yes_"),
                         "https://t.me/MoneyBaires"
-                }
+                )
         );
     }
 
