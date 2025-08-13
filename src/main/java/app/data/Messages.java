@@ -286,7 +286,7 @@ public class Messages {
                 Можно продолжить приглашать друзей или выбрать платную консультацию по ссылке ниже
                 """
                 .replace("{b}", bb);
-        return TelegramData.getEditMessage(chatId, s, Keyboards.mainKb(Long.parseLong(bb), pc), msgId);
+        return TelegramData.getEditMessage(chatId, s, Keyboards.mainKb(Long.parseLong(bb), !pc), msgId);
     }
 
     public static SendMessage userShareContact(Long logChat) {
