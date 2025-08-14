@@ -20,16 +20,13 @@ import java.util.Map;
 @Service
 public class CheckSubscribeToChannel {
 
-    private final UserActionService userActionService;
     private final PartnersRepository partners;
     private final ReferralService referralService;
     private final MessagingService msg;
 
-    public CheckSubscribeToChannel(UserActionService userActionService,
-                                   PartnersRepository partners,
+    public CheckSubscribeToChannel(PartnersRepository partners,
                                    ReferralService referralService,
                                    @Lazy MessagingService msg) {
-        this.userActionService = userActionService;
         this.partners = partners;
         this.referralService = referralService;
         this.msg = msg;

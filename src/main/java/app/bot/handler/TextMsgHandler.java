@@ -97,9 +97,9 @@ public class TextMsgHandler {
             userActionService.addUserAction(chatId, UserActionData.USER_HAD_REFERRAL_START);
             try {
                 Long ref = ExtractReferralIdFromStartCommand.extract(text);
-                if (ref < 1000 && ref > 0) {
+                if (ref < 1000 && ref >= 0) {
                     utmVisitService.save(ref, chatId);
-                    subscribe.hasNotSubscription(update, chatId, -1, false);
+                    subscribe.hasNotSubscription(update, chatId, -1, true);
                     return;
                 }
 
