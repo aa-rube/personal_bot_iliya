@@ -53,8 +53,10 @@ public class ActivationScheduler {
         Activation.Step step = Activation.Step.byCode(a.getStep());
 
         switch (step) {
-            case FIRST -> {            // +3 ч
-                msg.process(Messages.areYouOk(a.getUserId()));
+            case FIRST -> {// +3 ч
+                if (!a.isAreYouOkYes()) {
+                    msg.process(Messages.areYouOk(a.getUserId()));
+                }
                 userActionService.addUserAction(a.getUserId(), UserActionData.GET_SCHEDULE_MSG_IS_ARE_YOU_OK_3H);
             }
 

@@ -22,6 +22,8 @@ public class Activation {
      */
     private int step;
 
+    private boolean areYouOkYes;
+
     /**
      * Время (epoch millis), когда нужно отправить следующее сообщение
      */

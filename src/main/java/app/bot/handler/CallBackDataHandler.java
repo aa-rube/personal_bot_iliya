@@ -231,7 +231,7 @@ public class CallBackDataHandler {
                 case "yes" -> {
                     msg.process(Messages.yes(chatId, msgId));
                     Activation a = activationService.getActivation(chatId);
-                    a.setStep(1);
+                    a.setAreYouOkYes(true);
 
                     userActionService.addUserAction(chatId, UserActionData.ARE_YOU_OK_YES);
                 }
